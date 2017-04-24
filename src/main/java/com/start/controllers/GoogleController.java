@@ -1,5 +1,6 @@
 package com.start.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,8 +9,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.api.services.customsearch.model.Result;
+import com.google.api.services.customsearch.model.*;
+import com.start.models.SNresult;
 import com.start.services.GoogleService;
+import com.start.services.NwGgServiceImpl;
 
 
 
@@ -21,15 +24,34 @@ public class GoogleController {
 
 	@Autowired
 	private GoogleService gService;
+	@Autowired
+	private NwGgServiceImpl ngw;
 	
 
 	@RequestMapping(value="/data", produces = MediaType.APPLICATION_JSON_UTF8_VALUE,method= RequestMethod.GET)
-	public List<Result> getData()
+	public List<SNresult> getData()
 	{
-		return gService.searchedResults("");
+		List<Result> resL= gService.searchedResults("");//.subList(0,3) == (x,y is exclusive)
+		List<SNresult> gGlist = new ArrayList<>();
+		
+		for (Result result : resL) {
+			gGlist.add(new SNresult(result.getCacheId(), result.getTitle(), result.getLink()));
+		}
+		return gGlist;
 		
 	}
-	
+	@RequestMapping(value="/obligatkw", produces = MediaType.APPLICATION_JSON_UTF8_VALUE,method= RequestMethod.GET)
+	public List<Result> getObligatKw()
+	{
+		return gService.searchedResults("a");
+		
+	}
+	@RequestMapping(value="/optkw", produces = MediaType.APPLICATION_JSON_UTF8_VALUE,method= RequestMethod.GET)
+	public List<Result> getOptKw()
+	{
+		return gService.searchedResults("g");
+		
+	}
 	@RequestMapping(value="/exclu", produces = MediaType.APPLICATION_JSON_UTF8_VALUE,method= RequestMethod.GET)
 	public List<Result> getExcluTerm()
 	{
@@ -43,6 +65,34 @@ public class GoogleController {
 		return gService.searchedResults("c");
 		
 	}
+	@RequestMapping(value="/obligatsrc", produces = MediaType.APPLICATION_JSON_UTF8_VALUE,method= RequestMethod.GET)
+	public List<Result> getObligatSrc()
+	{
+		return gService.searchedResults("f");
+		
+	}
+	
+	@RequestMapping(value="/exclusrc", produces = MediaType.APPLICATION_JSON_UTF8_VALUE,method= RequestMethod.GET)
+	public List<Result> getExcluSrc()
+	{
+		return gService.searchedResults("d");
+		
+	}
+	
+	@RequestMapping(value="/lang", produces = MediaType.APPLICATION_JSON_UTF8_VALUE,method= RequestMethod.GET)
+	public List<Result> getLang()
+	{
+		return gService.searchedResults("e");
+		
+	}
+	
+	@RequestMapping(value="/filter", produces = MediaType.APPLICATION_JSON_UTF8_VALUE,method= RequestMethod.GET)
+	public List<Result> filtredData()
+	{
+		return ngw.searchedResults();
+		
+	}
+	
 }
 
 

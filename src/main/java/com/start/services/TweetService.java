@@ -11,4 +11,8 @@ public interface TweetService {
 	public List<Tweet> eliminateElt();
 	public List<Tweet> ListByType();
 	public List<Tweet> TweetsByDates();
+	List<Tweet> optionelElt();
+	List<Tweet> getAuthorizedLinkTweets();
+	List<Tweet> getForbiddenLinkTweets();
+	List<Tweet> selectLang();
 }

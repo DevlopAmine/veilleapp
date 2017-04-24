@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +13,6 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.customsearch.Customsearch;
 
-import com.google.api.services.customsearch.CustomsearchRequestInitializer;
 import com.google.api.services.customsearch.Customsearch.Builder;
 import com.google.api.services.customsearch.model.Result;
 import com.google.api.services.customsearch.model.Search;
@@ -29,7 +27,7 @@ public class GoogleServiceImpl  implements GoogleService{
 	
 	static private String cseKey;
 	static private String cse_Id;
-	final static Logger logger = Logger.getLogger(FBserviceImpl.class);
+	final static Logger logger = Logger.getLogger(GoogleServiceImpl.class);
 	
 
 	public GoogleServiceImpl(@Value("${Gg_key}") String Gkey,@Value("${cse_Id}") String cseId) {
@@ -40,7 +38,7 @@ public class GoogleServiceImpl  implements GoogleService{
 	
 	 private  List<Result> executeSearch(String searchTerm, final Long start,String h) throws GeneralSecurityException, IOException {
 	        Builder builder = new Customsearch.Builder(GoogleNetHttpTransport.newTrustedTransport(), new JacksonFactory(), null);
-	       
+	        String as_sitesearch ="www.instagram.com";
 	        Search searchResult;List<Result> items;
 	        csr= new CustomsearchRequest(cseKey, cse_Id);
 	        csr.setStart(start);
@@ -49,6 +47,20 @@ public class GoogleServiceImpl  implements GoogleService{
 	         
 	        Customsearch customsearch = builder.build();
 	        switch (h) {
+	        case "a":
+			{
+				 searchResult = customsearch.cse().list(searchTerm).setExactTerms("travel,visit").execute();
+				 System.out.println("About " + searchResult.getSearchInformation().getTotalResults() + " results available");
+			     items = searchResult.getItems();
+				break;
+			}
+	        case "g":
+			{
+				 searchResult = customsearch.cse().list(searchTerm).setOrTerms("work").execute();
+				 System.out.println("About " + searchResult.getSearchInformation().getTotalResults() + " results available");
+			     items = searchResult.getItems();
+				break;
+			}
 			case "b":
 					{
 						 searchResult = customsearch.cse().list(searchTerm).setExcludeTerms("office").execute();
@@ -59,6 +71,27 @@ public class GoogleServiceImpl  implements GoogleService{
 			case "c":
 			{
 				 searchResult = customsearch.cse().list(searchTerm).setDateRestrict("2017/01/15").execute();
+				 System.out.println("About " + searchResult.getSearchInformation().getTotalResults() + " results available");
+			     items = searchResult.getItems();
+				break;
+			}
+			case "f":
+			{
+				 searchResult = customsearch.cse().list(searchTerm).setSiteSearch(as_sitesearch).execute();
+				 System.out.println("About " + searchResult.getSearchInformation().getTotalResults() + " results available");
+			     items = searchResult.getItems();
+				break;
+			}
+			case "d":
+			{
+				 searchResult = customsearch.cse().list(searchTerm).setSiteSearchFilter("e").setSiteSearch(as_sitesearch).execute();
+				 System.out.println("About " + searchResult.getSearchInformation().getTotalResults() + " results available");
+			     items = searchResult.getItems();
+				break;
+			}
+			case "e":
+			{
+				 searchResult = customsearch.cse().list(searchTerm).setLr("fr").execute();
 				 System.out.println("About " + searchResult.getSearchInformation().getTotalResults() + " results available");
 			     items = searchResult.getItems();
 				break;
@@ -85,7 +118,7 @@ public class GoogleServiceImpl  implements GoogleService{
 	       
 	            try {
 	            	for (long i = 1; i <= 10; i += 10) {
-					items.addAll(executeSearch("#Messi", i,param));
+					items.addAll(executeSearch("#spain", i,param));
 					
 	            	}  
 	            	int k = 1;  
@@ -103,5 +136,8 @@ public class GoogleServiceImpl  implements GoogleService{
 	     
 	     return items;
 	 }
+
+	
+	
 	 
 }

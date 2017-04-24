@@ -12,5 +12,7 @@ public interface FBService {
 	public List<Post> precizeKey(String keyword);
 	public List<Post> getLowerCaseKeyword(String keyword);
 	public List<Post> dataInterval();
+	void feedOfTimeline();
+	public void test();
 	
 }

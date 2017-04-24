@@ -1,23 +1,19 @@
 package com.start.services;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Properties;
 import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-
 import org.springframework.stereotype.Service;
 
 import com.restfb.Connection;
 import com.restfb.DefaultFacebookClient;
 import com.restfb.FacebookClient;
 import com.restfb.Parameter;
-
+import com.restfb.json.JsonObject;
 import com.restfb.types.Page;
 import com.restfb.types.Post;
 
@@ -64,7 +60,7 @@ public class FBserviceImpl implements FBService {
 	@Override
 	public List<Post> feedOfPage() {
 		 
-		 Connection<Post> pageFeed = fbClient.fetchConnection(tab[2] + "/feed", Post.class);
+		 Connection<Post> pageFeed = fbClient.fetchConnection(tab[2] + "/feed", Post.class,Parameter.with("fields","message,created_time,id,link,likes"));
 		 ArrayList<Post> listP = new ArrayList<>();
 		 
 		 for (List<Post> feed : pageFeed){
@@ -79,37 +75,37 @@ public class FBserviceImpl implements FBService {
 	@Override
 	public List<Post> precizeKey(String keyword) {
 		ArrayList<Post> listP = new ArrayList<>();
-		Connection<Post> pageFeed = fbClient.fetchConnection(tab[1] + "/feed", Post.class);
+		Connection<Post> pageFeed = fbClient.fetchConnection(tab[1] + "/posts", Post.class,Parameter.with("fields","message,created_time,id,link,likes"));
 		System.out.println(keyword);
-        String[] words = keyword.trim().split("\\s");
-        int c=0;
+        String[] words = keyword.toLowerCase().trim().split("\\s");
+        String msg;
+       
         //Getting posts:
                    //PRINTING THE POST 
         try {
-        	 while(pageFeed.hasNext())
-        	 {
-        		 for(String wd : words){
-  	         		if(pageFeed.getData().get(c).getMessage().contains(wd))
-  	         		{
-  	         			System.out.println("-"+pageFeed.getData().get(c).getMessage());
-  	         			listP.add(pageFeed.getData().get(c));
-  	         			
-  	         		}
-  	         		else{
-  	         			System.out.println("null post");
-  	         		}
-  	         	}
-        		 
-        		 c++;
-        		
-        		
-        		 
-        	 }
-     	         	
-     	         		
-              
-		} catch (Exception e) {
-			logger.info("null pointer ",e);
+	        	outerloop:
+	        	for (List<Post> feed : pageFeed)
+	        	{
+	        		for (Post post : feed )
+	        		{
+	        			if(post.getMessage().equals(null))
+	        				break outerloop;
+	        			msg=post.getMessage().toLowerCase();
+	        				for(String wd : words)
+		   	        		 {
+		   	        			 if(msg.contains(wd))
+		   	        			 {
+		   	        			  System.out.println("-"+post.getMessage());
+		   	  	         		  listP.add(post);
+		   	        				
+		   	        			 }
+		   	        		}
+	     	       }
+	        	}
+        	}
+        	 
+        catch (Exception e) {
+			logger.info("no post  match this "+e);
 		}
         return listP;
        
@@ -121,29 +117,23 @@ public class FBserviceImpl implements FBService {
 		ArrayList<Post> lisP = new ArrayList<>();
 		try{
             
-            Connection<Post> pageFeed = fbClient.fetchConnection(tab[1] + "/feed", Post.class);
-            
-            int c=0;
-           
+            Connection<Post> pageFeed = fbClient.fetchConnection(tab[1]+"/posts", Post.class,Parameter.with("fields","message,created_time,id,link,likes"));
            //Getting posts:
               
-                       //PRINTING THE POST 
-            while (pageFeed.hasNext()) {
+            for (List<Post> feed : pageFeed){
+        		for (Post post : feed ){
+	            	if(post.getMessage().toLowerCase().
+	            			indexOf(keyword.trim().toLowerCase())!=-1)
+	          		{
+	            	
+	                System.out.println("-"+post.getMessage()+" fb.com/"+post.getId()+" likes: "
+	                		+post.getLikesCount()+" "+post.getPermalinkUrl());
+	                lisP.add(post);} 
             	
-            	
-            	if(pageFeed.getData().get(c).getMessage().toLowerCase().
-            			indexOf(keyword.trim().toLowerCase())!=-1)
-          		{
-            	
-                System.out.println("-"+pageFeed.getData().get(c).getMessage()+" fb.com/"+pageFeed.getData().get(c).getId());
-                lisP.add(pageFeed.getData().get(c));
-               
-          		} 
-            	 c++;
-            	pageFeed = fbClient.fetchConnectionPage(pageFeed.getNextPageUrl(),Post.class);
             	
             }   
               }
+		}
            
       catch(Exception ex){
             System.out.println("exeption here"+ex);
@@ -188,4 +178,67 @@ public class FBserviceImpl implements FBService {
 		return secondsSinceEpoch;
 	}
 	
+	@Override
+	public void feedOfTimeline() {
+		 
+		 Connection<Post> pageFeed = fbClient.fetchConnection(tab[1]+"/feed", Post.class);
+		 ArrayList<Post> listP = new ArrayList<>();
+		 Post.Likes likes=null;
+		 Post.Comments comments = null;
+		 Post.Shares shares = null;
+		 int personalLimit = 10;
+		 
+		for (List<Post> feed : pageFeed){
+             for (Post post : feed){
+            	
+            	  likes = fbClient.fetchObject(post.getId()+"/likes", Post.Likes.class, 
+            			    Parameter.with("summary", true), Parameter.with("limit", 0));
+            			long likesTotalCount = likes.getTotalCount();
+            			
+            	 comments = fbClient.fetchObject(post.getId()+"/comments", Post.Comments.class, 
+                			Parameter.with("summary", true), Parameter.with("limit", 0));
+                			long ComtsTotalCount = comments.getTotalCount();    
+                			
+                 shares = fbClient.fetchObject(post.getId()+"/likes", Post.Shares.class, 
+                    	    Parameter.with("summary", true), Parameter.with("limit", 0));
+                    		long SharesTotalCount = shares.getCount();		
+            			
+            			System.out.println(likesTotalCount+" liked");
+            			System.out.println(ComtsTotalCount+" commented");
+            			System.out.println(SharesTotalCount+" shared");
+            			 personalLimit--;
+
+          		       // break both loops
+          		       if (personalLimit == 0) {
+          		          return;
+          		       }
+              listP.add(post);
+             }
+             
+          // pageFeed = fbClient.fetchConnectionPage(pageFeed.getNextPageUrl(),Post.class);
+        }
+		// return listP;
+	}
+	
+	public void test()
+	{
+			Connection<JsonObject> feedcon = fbClient.fetchConnection(tab[1]+"/feed", JsonObject.class,Parameter
+					.with("fields","message,created_time,id,permalink_url,likes"));
+
+			int personalLimit = 25;
+			
+		for (List<JsonObject> objectList: feedcon) {
+		   for (JsonObject obj: objectList) {
+		       System.out.println(obj.getJsonObject("likes").getJsonArray("data").length());
+		     
+		       personalLimit--;
+
+		       // break both loops
+		       if (personalLimit == 0) {
+		          return;
+		       }
+		   }
+		}
+		
+	}
 }

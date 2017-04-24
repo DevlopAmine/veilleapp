@@ -6,4 +6,5 @@ public interface GoogleService {
 
 	
 	public List<Result> searchedResults(String param);
+	
 }
