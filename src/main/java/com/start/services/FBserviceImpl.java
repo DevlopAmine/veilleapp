@@ -29,34 +29,30 @@ public class FBserviceImpl implements FBService {
 	public FBserviceImpl(@Value("${fb_accesToken}") String accessToken ) {
 		System.err.println(accessToken);
 		fbClient = new DefaultFacebookClient(accessToken);
-		
-	
-	}
+		}
 	
 	@Override
 	public List<Page> pageIdscollect() {
 		ArrayList<Page> listId = new ArrayList<>();
 		
 		Connection<Page> publicSearch = fbClient.fetchConnection("search",Page.class,Parameter.with("type","page"),
-				Parameter.with("q","visit Morocco")
+				Parameter.with("q","visit Morocco"),Parameter.with("fields", "id,link,name")
 			   );
 		for(List<Page>  pageFeed : publicSearch)
 		{
 			for(Page aPage:pageFeed)
 			{
-				
 				listId.add(aPage);
-				
 			}
-			
 		}
 		return listId;
-		
 		
 	}
 	
 	
-
+	/**
+	 * return posts from specified FBpage 
+	 */
 	@Override
 	public List<Post> feedOfPage() {
 		 
@@ -112,12 +108,12 @@ public class FBserviceImpl implements FBService {
   }
 
 	@Override
-	public List<Post>  getLowerCaseKeyword(String keyword)
+	public List<Post>  getLowerCaseKeyword(String keyword,String pageId)
 	{
 		ArrayList<Post> lisP = new ArrayList<>();
 		try{
             
-            Connection<Post> pageFeed = fbClient.fetchConnection(tab[1]+"/posts", Post.class,Parameter.with("fields","message,created_time,id,link,likes"));
+            Connection<Post> pageFeed = fbClient.fetchConnection(pageId+"/posts", Post.class,Parameter.with("fields","message,created_time,id,link,likes"));
            //Getting posts:
               
             for (List<Post> feed : pageFeed){
@@ -126,8 +122,7 @@ public class FBserviceImpl implements FBService {
 	            			indexOf(keyword.trim().toLowerCase())!=-1)
 	          		{
 	            	
-	                System.out.println("-"+post.getMessage()+" fb.com/"+post.getId()+" likes: "
-	                		+post.getLikesCount()+" "+post.getPermalinkUrl());
+	                System.out.println("-"+post.getMessage()+" fb.com/"+post.getId()+" "+post.getLink());
 	                lisP.add(post);} 
             	
             	

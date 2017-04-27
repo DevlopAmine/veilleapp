@@ -19,8 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.start.daoservices.AlertService;
 import com.start.daoservices.CustomerService;
+import com.start.daoservices.FBpageService;
 import com.start.daoservices.InstanceService;
 import com.start.models.Alert;
+import com.start.models.FbPage;
 import com.start.models.Instance;
 import com.start.models.User;
  
@@ -41,6 +43,9 @@ public class ToDBController {
 	  private AlertService alertServ;
 	@Autowired
 	  private CustomerService customServ;
+	@Autowired
+	  private FBpageService fbPageServ;
+	
   /**
 	   * Create Instance 
 	 * @param InstanceMap
@@ -60,11 +65,11 @@ public class ToDBController {
 		
 	  }
 	  
-	  @RequestMapping(method = RequestMethod.GET,value="twlist/{descI}")
+	  @RequestMapping(method = RequestMethod.GET,value="saveAlert/{descI}")
 	  public ResponseEntity<Alert> insertFromListSN(@PathVariable("descI") String descI){
 		
-		  Alert alert = new Alert(new ObjectId(),"fashion_alert");
-		  alertServ.saveTwAlert(alert,descI);
+		  Alert alert = new Alert(new ObjectId(),"mix_alert");
+		  alertServ.saveAlert(alert,descI);
 	
 	 	return new ResponseEntity<Alert>(alert, HttpStatus.CREATED);
 	  }
@@ -155,6 +160,31 @@ public class ToDBController {
 		System.out.println(users.toString());
 		return new ResponseEntity<List<User>>(users, HttpStatus.OK);
 	  }
+	 
+	 @RequestMapping(method = RequestMethod.POST,value="fbpage")
+	  public void insertFbPage(@RequestBody(required=false) Map<String, Object> AlertMap )
+	 {
+		
+		 String descA = AlertMap.get("descA").toString();
+		 if(alertServ.getAlert(descA)!=null)
+			 fbPageServ.savePage(alertServ.getAlert(descA));
+		 else 
+		 {
+			 Alert alert = new Alert(new ObjectId(),descA); 
+			 alert.setInstanceId(new ObjectId(AlertMap.get("instanceId").toString()));
+			 fbPageServ.savePage(alert);
+		 }
+	 
+	  }
+	 
+	 @RequestMapping(method = RequestMethod.GET,value="getfbpage/{parent}",produces = MediaType.APPLICATION_JSON_VALUE)
+	  public @ResponseBody ResponseEntity<List<FbPage>> ShowFBpages(@PathVariable("parent") String parent ){  
+		
+		 List<FbPage> pages = fbPageServ.getPagesByParent(parent);
+		
+		return new ResponseEntity<List<FbPage>>(pages, HttpStatus.OK);
+	  }
+	 
 }
 
 

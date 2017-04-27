@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.restfb.types.Page;
 import com.restfb.types.Post;
+import com.start.daoservices.FBpageService;
 import com.start.models.SNresult;
 import com.start.services.*;
 
@@ -25,15 +26,21 @@ public class FacebookController {
 	private static final Logger log = LoggerFactory.getLogger(FacebookController.class);
 	@Autowired
 	private FBService fbService;
+	@Autowired
+	private FBpageService fbPageServ; 
 	
 
-	@RequestMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+	@RequestMapping(value="/idscollect",produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public List<Page> getIdPages()
 	{
 		return fbService.pageIdscollect();
 		
 	}
 	
+	
+	/**
+	 * return posts from specified FBpage 
+	 */
 	@RequestMapping(value="/posts", produces = MediaType.APPLICATION_JSON_UTF8_VALUE,method= RequestMethod.GET)
 	public List<Post> getFeedPages()
 	{
@@ -67,12 +74,21 @@ public class FacebookController {
 	@RequestMapping(value="/lower", produces = MediaType.APPLICATION_JSON_UTF8_VALUE,method= RequestMethod.GET)
 	public List<SNresult> lowerkey()
 	{
-//		return fbService.getLowerCaseKeyword("Visit Morocco");
-		List<Post> listP = fbService.getLowerCaseKeyword("Visit Morocco");
+
+		String pageId = fbPageServ.getPageId("VISIT MOROCCO");
+		List<Post> listP = fbService.getLowerCaseKeyword("Visit Morocco", pageId);
 		List<SNresult> resultfb= new ArrayList<>();
+		if(listP.size()!=0)
+		{
 		SNresult sc = new SNresult(listP.get(0).getId(),listP.get(0).getMessage(),listP.get(0).getLink());
 		SNresult sc1 = new SNresult(listP.get(1).getId(),listP.get(1).getMessage(),listP.get(1).getLink());
 		resultfb.add(sc);resultfb.add(sc1);
+		}
+		else
+		{
+			System.err.println("No data found");
+		}
+		
 		
 		return resultfb;
 		

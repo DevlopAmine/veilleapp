@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -16,7 +15,7 @@ import com.google.api.services.customsearch.Customsearch.Builder;
 import com.google.api.services.customsearch.model.Result;
 import com.google.api.services.customsearch.model.Search;
 import com.start.CustomsearchRequest;
-import com.start.models.Alert;
+
 
 
 
@@ -26,7 +25,6 @@ CustomsearchRequest csr;
 	
 	static private String cseKey;
 	static private String cse_Id;
-	private Alert alert;
 	final static Logger logger = Logger.getLogger(GoogleServiceImpl.class);
 	
 
@@ -39,7 +37,7 @@ CustomsearchRequest csr;
 	{
 		Builder builder = new Customsearch.Builder(GoogleNetHttpTransport.newTrustedTransport(), new JacksonFactory(), null);
        
-        Search searchResult;List<Result> items;
+        Search searchResult;
         csr= new CustomsearchRequest(cseKey, cse_Id);
         csr.setStart(start);
         builder.setApplicationName("Search Test");
@@ -65,7 +63,7 @@ CustomsearchRequest csr;
 				  
 				 .execute();
 		 System.out.println("About " + searchResult.getSearchInformation().getTotalResults() + " results available");
-	    return items = searchResult.getItems();
+	    return searchResult.getItems();
 		
 	}
 	

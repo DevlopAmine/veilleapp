@@ -12,6 +12,7 @@
     <bean class="com.start.daoservices.InstanceServiceImpl"/>
     <bean class="com.start.daoservices.AlertServiceImpl"/>
     <bean class="com.start.daoservices.CustomerServiceImpl"/>
+    <bean class="com.start.daoservices.FBpageServiceImpl"/>
 
 	<!-- Activate annotation configured components -->
 	<context:annotation-config />

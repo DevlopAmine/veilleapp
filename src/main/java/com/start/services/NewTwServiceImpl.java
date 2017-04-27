@@ -65,7 +65,8 @@ public class NewTwServiceImpl {
 				
 		}	
 		System.out.println(sF);
-		System.out.println(keyword=keyword+" "+keyOption+fk+sF);
+		//System.out.println(keyword=keyword+" "+keyOption+fk+sF);
+		System.out.println(keyword=keyword+fk+sF);
 		
 		SearchParameters params = new SearchParameters(keyword).lang(Lang).count(10);
 		   

@@ -37,8 +37,9 @@ public class AlertServiceImpl implements AlertService {
 	@Autowired
 	private InstanceService InstServ;
 	@Override
-	public void saveTwAlert(Alert alert,String descI) {
+	public void saveAlert(Alert alert,String descI) {
 		RestTemplate restTemplate = new RestTemplate();
+		
 		ResponseEntity<List<SNresult>> twResponse =
 			        restTemplate.exchange("http://localhost:8080/svc/v1/tweets/fd",
 			                    HttpMethod.GET, null, new ParameterizedTypeReference<List<SNresult>>() {
@@ -47,7 +48,12 @@ public class AlertServiceImpl implements AlertService {
 			        restTemplate.exchange("http://localhost:8080/customse/filter",
 			                    HttpMethod.GET, null, new ParameterizedTypeReference<List<Result>>() {
 			            });
-		
+		 
+		 ResponseEntity<List<SNresult>> FbResponse =
+			        restTemplate.exchange("http://localhost:8080/svc/v1/fb/lower",
+			                    HttpMethod.GET, null, new ParameterizedTypeReference<List<SNresult>>() {
+			            });
+			List<SNresult> fbL = FbResponse.getBody();
 			List<SNresult> tweetL = twResponse.getBody();
 			List<Result> Ggresult= GgResponse.getBody();
 			
@@ -55,7 +61,8 @@ public class AlertServiceImpl implements AlertService {
 			for (Result r : Ggresult) {
 				Ggl.add(new SNresult(r.getCacheId(), r.getTitle(), r.getLink()));
 			}
-			List<SNresult> newList = Stream.concat(tweetL.stream(), Ggl.stream()).collect(Collectors.toList());
+			List<SNresult> nList = Stream.concat(tweetL.stream(), Ggl.stream()).collect(Collectors.toList());
+			List<SNresult> newList = Stream.concat(nList.stream(),fbL.stream()).collect(Collectors.toList());
 		
 			
 			int c=0;
@@ -140,7 +147,11 @@ public class AlertServiceImpl implements AlertService {
 		else return false;
 	}
 	
-	
+	@Override
+	public  Alert getAlert(String desc) {
+		Alert a =  mongoTemplate.findOne(query(where("descA").is(desc)),Alert.class);
+		return a;
+	}
 	public void persistAlert(Alert alert,List<AlertSource> list,String descI)
 	{
 		if(issetAlert(alert.getDescA()))

@@ -16,6 +16,7 @@ public interface AlertService {
 	boolean issetAlert(String desc);
 	//ObjectId findAlertId(String descA);
 	void saveGgAlert(Alert alert, String descI);
-	void saveTwAlert(Alert alert, String descI);
+	void saveAlert(Alert alert, String descI);
 	void saveFBAlert(Alert alert, String descI);
+	Alert getAlert(String desc);
 }
