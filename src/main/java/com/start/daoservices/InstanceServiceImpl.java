@@ -23,10 +23,10 @@ public class InstanceServiceImpl implements InstanceService{
 	@Autowired 
 	MongoTemplate mongoTemplate;
 	@Override
-	public void saveInstance(Map<String, Object> InstanceMap) {
+	public void saveInstance(Instance instance) {
 		
-		Instance instance = new Instance(Double.parseDouble(InstanceMap.get("instance_id").toString()),InstanceMap.get("descI").toString());
-		instance.setCustomer_id(new ObjectId(InstanceMap.get("customer_id").toString()));
+		/*Instance instance = new Instance(InstanceMap.get("descI").toString(),new ObjectId(InstanceMap.get("customer_id").toString()));
+		instanceRepository.save(instance);*/
 		instanceRepository.save(instance);
 		
 	}

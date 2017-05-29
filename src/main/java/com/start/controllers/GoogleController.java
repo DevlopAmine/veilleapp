@@ -2,6 +2,7 @@ package com.start.controllers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -31,11 +32,24 @@ public class GoogleController {
 	@RequestMapping(value="/data", produces = MediaType.APPLICATION_JSON_UTF8_VALUE,method= RequestMethod.GET)
 	public List<SNresult> getData()
 	{
-		List<Result> resL= gService.searchedResults("");//.subList(0,3) == (x,y is exclusive)
+		List<Result> resL= gService.searchedResults("a");//.subList(0,3) == (x,y is exclusive)
 		List<SNresult> gGlist = new ArrayList<>();
-		
+		Map<String, List<Map<String, Object>>> pageMap;
+		int c=0;
 		for (Result result : resL) {
-			gGlist.add(new SNresult(result.getCacheId(), result.getTitle(), result.getLink()));
+			
+			  
+			  try {
+				  pageMap = result.getPagemap();
+				  gGlist.add(new SNresult(result.getCacheId(), result.getTitle(), result.getLink(),pageMap.get("cse_image").get(0).get("src").toString()));
+			} catch (Exception e) {
+				System.err.println("not foud cse_image pageMap");
+			}
+			  
+			  /*c++;
+			  System.out.println("fin item");*/
+			  
+
 		}
 		return gGlist;
 		
@@ -89,7 +103,7 @@ public class GoogleController {
 	@RequestMapping(value="/filter", produces = MediaType.APPLICATION_JSON_UTF8_VALUE,method= RequestMethod.GET)
 	public List<Result> filtredData()
 	{
-		return ngw.searchedResults();
+		return null;
 		
 	}
 	

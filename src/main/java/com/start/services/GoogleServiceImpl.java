@@ -42,8 +42,10 @@ public class GoogleServiceImpl  implements GoogleService{
 	        Search searchResult;List<Result> items;
 	        csr= new CustomsearchRequest(cseKey, cse_Id);
 	        csr.setStart(start);
+	  
 	        builder.setApplicationName("Search Test");
 	        builder.setCustomsearchRequestInitializer(csr);
+	        
 	         
 	        Customsearch customsearch = builder.build();
 	        switch (h) {

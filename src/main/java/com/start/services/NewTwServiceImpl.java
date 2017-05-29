@@ -4,33 +4,40 @@ import java.util.List;
 
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.social.twitter.api.SearchParameters;
 import org.springframework.social.twitter.api.Twitter;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.social.twitter.api.Tweet;
 
+import com.start.daoservices.AlertService;
 import com.start.models.Alert;
+import com.start.models.SNresult;
+import com.start.repositories.AlertRepository;
 
 public class NewTwServiceImpl {
 
 	@Autowired
 	private Twitter twitter;
 	
-	private Alert alert;
 	
 	
-	public List<Tweet> getFiltredData()
+	
+	
+	public List<Tweet> getFiltredData(Alert alert)
 	{
-		String[] forbidKeywords ={"caftan","robe"};
-		String[] optKeywords ={"style","jacket"};
+		
+		String[] forbidKeywords =transform(alert.getForbidenKeywords());
+		String[] optKeywords =transform(alert.getOptKeywords());
 		String Lang ="fr"; 
-		String[] srcAuth ={"Mim_fr","citemodedesign"};
-		String[] srcForb ={"NumeroMagazine","histoiresdemode"};
-		alert = new Alert(new ObjectId(),"fashion");
+		String[] srcAuth =transform(alert.getSrcAutorises());
+		String[] srcForb =transform(alert.getSrcBloques());
+		
 		String keyword = alert.getDescA();
 		String fk="";String sA="";String sF="";
 		
-		
-		alert.setForbidenKeywords(forbidKeywords);
 		
 		
 		
@@ -71,13 +78,15 @@ public class NewTwServiceImpl {
 		SearchParameters params = new SearchParameters(keyword).lang(Lang).count(10);
 		   
 		return  twitter.searchOperations().search(params).getTweets();
-		
-		    
+		//return  null;
+		  	
+			
+	}
 	
-		
-			
-			
-		
+	private String[] transform(String s)
+	{
+		String[] tab = s.trim().split(";");
+		return tab;
 	}
 	
 	

@@ -29,10 +29,11 @@ public class Instance {
 	
 	public Instance(){}
 	
-	public Instance(Double InsId,String d)
+	public Instance(String d,String cosId)
 	{
-		this.instance_id=InsId;
+		
 		this.descI=d;
+		this.customer_id=new ObjectId(cosId);
 		
 	}
 

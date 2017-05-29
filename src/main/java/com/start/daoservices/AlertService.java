@@ -5,6 +5,7 @@ import java.util.List;
 import org.bson.types.ObjectId;
 
 import com.start.models.Alert;
+import com.start.models.AlertSource;
 
 public interface AlertService {
 
@@ -15,8 +16,8 @@ public interface AlertService {
 	List<Alert> findAlertsByInstanceId(ObjectId oId);
 	boolean issetAlert(String desc);
 	//ObjectId findAlertId(String descA);
-	void saveGgAlert(Alert alert, String descI);
 	void saveAlert(Alert alert, String descI);
-	void saveFBAlert(Alert alert, String descI);
 	Alert getAlert(String desc);
+	Alert findAlertByDesc(String descA);
+	void persistAlert(Alert alert, List<AlertSource> list, String descI);
 }

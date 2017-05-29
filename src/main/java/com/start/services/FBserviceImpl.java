@@ -56,7 +56,7 @@ public class FBserviceImpl implements FBService {
 	@Override
 	public List<Post> feedOfPage() {
 		 
-		 Connection<Post> pageFeed = fbClient.fetchConnection(tab[2] + "/feed", Post.class,Parameter.with("fields","message,created_time,id,link,likes"));
+		 Connection<Post> pageFeed = fbClient.fetchConnection(tab[2] + "/feed", Post.class,Parameter.with("fields","message,created_time,id,link,likes,picture"));
 		 ArrayList<Post> listP = new ArrayList<>();
 		 
 		 for (List<Post> feed : pageFeed){
@@ -113,7 +113,7 @@ public class FBserviceImpl implements FBService {
 		ArrayList<Post> lisP = new ArrayList<>();
 		try{
             
-            Connection<Post> pageFeed = fbClient.fetchConnection(pageId+"/posts", Post.class,Parameter.with("fields","message,created_time,id,link,likes"));
+            Connection<Post> pageFeed = fbClient.fetchConnection(pageId+"/posts", Post.class,Parameter.with("fields","message,created_time,id,link,likes,picture"));
            //Getting posts:
               
             for (List<Post> feed : pageFeed){
@@ -122,7 +122,7 @@ public class FBserviceImpl implements FBService {
 	            			indexOf(keyword.trim().toLowerCase())!=-1)
 	          		{
 	            	
-	                System.out.println("-"+post.getMessage()+" fb.com/"+post.getId()+" "+post.getLink());
+	                System.out.println("-"+post.getMessage()+" fb.com/"+post.getId()+" "+post.getLink()+" "+post.getPicture());
 	                lisP.add(post);} 
             	
             	

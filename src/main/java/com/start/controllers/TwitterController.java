@@ -55,7 +55,7 @@ public List<SNresult> getTweets(@PathVariable final String hashtag)
 		while(mediaI.hasNext())
 		{
 		 MediaEntity media = mediaI.next();
-		 resL.add(new SNresult(tweet.getIdStr(),tweet.getText(), media.getUrl()));
+		 resL.add(new SNresult(tweet.getIdStr(),tweet.getText(), media.getUrl(),media.getDisplayUrl()));
 		 System.out.println(resL.get(c).toString());c++;
 		}
 		
@@ -124,9 +124,11 @@ public List<Tweet> TweetsByInterval()  {
 
 
 @RequestMapping(path="/fd",method = RequestMethod.GET)
-public List<SNresult> filterData()  {
+public List<SNresult> filterData()  
+{
 	
-	List<Tweet> tweetList = ntw.getFiltredData();
+	//List<Tweet> tweetList = ntw.getFiltredData();
+	List<Tweet> tweetList = null;
 	List<SNresult> resL = new ArrayList<>();
     
   
@@ -142,7 +144,7 @@ public List<SNresult> filterData()  {
 		while(mediaI.hasNext())
 		{
 		 MediaEntity media = mediaI.next();
-		 resL.add(new SNresult(tweet.getIdStr(),tweet.getText(), media.getUrl()));
+		 //resL.add(new SNresult(tweet.getIdStr(),tweet.getText(), media.getUrl()));
 		 //System.out.println(resL.get(c).toString());
 		 
 		}

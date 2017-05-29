@@ -15,6 +15,7 @@ import com.google.api.services.customsearch.Customsearch.Builder;
 import com.google.api.services.customsearch.model.Result;
 import com.google.api.services.customsearch.model.Search;
 import com.start.CustomsearchRequest;
+import com.start.models.Alert;
 
 
 
@@ -33,7 +34,7 @@ CustomsearchRequest csr;
 		cseKey=Gkey;
 		cse_Id=cseId;
 	}
-	public List<Result> executeSearch(String searchTerm, final Long start) throws GeneralSecurityException, IOException
+	public List<Result> executeSearch(Alert al, final Long start) throws GeneralSecurityException, IOException
 	{
 		Builder builder = new Customsearch.Builder(GoogleNetHttpTransport.newTrustedTransport(), new JacksonFactory(), null);
        
@@ -45,17 +46,15 @@ CustomsearchRequest csr;
         Customsearch customsearch = builder.build();
         
         
-        String forbidKeywords ="caftan robe";
-		String optKeywords ="style jacket";
+        String forbidKeywords =al.getForbidenKeywords();
+		String optKeywords =al.getOptKeywords();
 		String Lang ="lang_en"; 
-		String srcAuth ="www.facebook.com/kajsgoteborg";
-		String srcForb ="www.facebook.com/imatiofashion www.facebook.com/anaaga.official";
+		String srcAuth =al.getSrcAutorises();
+		String srcForb =al.getForbidenKeywords();
 		
 		
-		
-		
-		 searchResult = customsearch.cse().list(searchTerm)
-					 .setExactTerms(searchTerm)
+		 searchResult = customsearch.cse().list(al.getDescA())
+					 .setExactTerms(al.getDescA())
 					 .setExcludeTerms(forbidKeywords)
 					 .setOrTerms(optKeywords)
 					 .setSiteSearchFilter("e").setSiteSearch(srcForb)
@@ -67,15 +66,13 @@ CustomsearchRequest csr;
 		
 	}
 	
-	
-	
-	public List<Result> searchedResults()
+	public List<Result> searchedResults(Alert alert)
 	 {
 		 List<Result> items = new ArrayList<Result>();
 	       
 	            try {
 	            	for (long i = 1; i <= 10; i += 10) {
-					items.addAll(executeSearch("#fashion", i));
+					items.addAll(executeSearch(alert, i));
 					
 	            	}  
 	            	int k = 1;  

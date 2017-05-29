@@ -57,9 +57,9 @@ public class FacebookController {
 		List<SNresult> resultfb= new ArrayList<>();
 		try {
 			
-			SNresult sc = new SNresult(listP.get(0).getId(),listP.get(0).getMessage(),listP.get(0).getPermalinkUrl());
+			/*SNresult sc = new SNresult(listP.get(0).getId(),listP.get(0).getMessage(),listP.get(0).getPermalinkUrl());
 			SNresult sc1 = new SNresult(listP.get(1).getId(),listP.get(1).getMessage(),listP.get(1).getPermalinkUrl());
-			resultfb.add(sc);resultfb.add(sc1);
+			resultfb.add(sc);resultfb.add(sc1);*/
 		} catch (Exception e) {
 			log.info("Index out of bounds ");
 		}
@@ -80,8 +80,8 @@ public class FacebookController {
 		List<SNresult> resultfb= new ArrayList<>();
 		if(listP.size()!=0)
 		{
-		SNresult sc = new SNresult(listP.get(0).getId(),listP.get(0).getMessage(),listP.get(0).getLink());
-		SNresult sc1 = new SNresult(listP.get(1).getId(),listP.get(1).getMessage(),listP.get(1).getLink());
+		SNresult sc = new SNresult(listP.get(0).getId(),listP.get(0).getMessage(),listP.get(0).getLink(),listP.get(0).getPicture());
+		SNresult sc1 = new SNresult(listP.get(1).getId(),listP.get(1).getMessage(),listP.get(1).getLink(),listP.get(0).getPicture());
 		resultfb.add(sc);resultfb.add(sc1);
 		}
 		else

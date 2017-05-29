@@ -1,15 +1,20 @@
 package com.start.controllers;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.apache.http.entity.ContentType;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,9 +27,11 @@ import com.start.daoservices.CustomerService;
 import com.start.daoservices.FBpageService;
 import com.start.daoservices.InstanceService;
 import com.start.models.Alert;
+import com.start.models.AlertSource;
 import com.start.models.FbPage;
 import com.start.models.Instance;
 import com.start.models.User;
+import com.start.services.NewTwServiceImpl;
  
 
 /**
@@ -34,6 +41,7 @@ import com.start.models.User;
 
 @RestController
 @RequestMapping("/it")
+@CrossOrigin
 public class ToDBController {
 	 private static final Logger log = LoggerFactory.getLogger(ToDBController.class);
 	
@@ -51,10 +59,10 @@ public class ToDBController {
 	 * @param InstanceMap
 	 * @return Map<String,Object>
 	 */
-	  @RequestMapping(method = RequestMethod.POST)
-	  public void createInstance(@RequestBody Map<String, Object> InstanceMap){
+	  @RequestMapping(method = RequestMethod.POST,value="creatInst",consumes=MediaType.APPLICATION_JSON_VALUE)
+	  public void createInstance(@RequestBody Instance instance){
 	    
-		instServ.saveInstance(InstanceMap);
+		instServ.saveInstance(instance);
 		
 	  }
 	
@@ -65,11 +73,20 @@ public class ToDBController {
 		
 	  }
 	  
-	  @RequestMapping(method = RequestMethod.GET,value="saveAlert/{descI}")
+	  /*@RequestMapping(method = RequestMethod.GET,value="saveAlert/{descI}")
 	  public ResponseEntity<Alert> insertFromListSN(@PathVariable("descI") String descI){
 		
-		  Alert alert = new Alert(new ObjectId(),"mix_alert");
+		  Alert alert = new Alert(new ObjectId(),"tstA");
 		  alertServ.saveAlert(alert,descI);
+	
+	 	return new ResponseEntity<Alert>(alert, HttpStatus.CREATED);
+	  }*/
+	  
+	  @RequestMapping(method = RequestMethod.POST,value="critereAlt",consumes=MediaType.APPLICATION_JSON_VALUE)
+	  public ResponseEntity<Alert> createAlert(@RequestBody Alert alert){
+		
+		if(alert != null)
+		  alertServ.saveAlert(alert,alert.getDescI());
 	
 	 	return new ResponseEntity<Alert>(alert, HttpStatus.CREATED);
 	  }
@@ -91,34 +108,7 @@ public class ToDBController {
 		return new ResponseEntity<List<Alert>>(alerts, HttpStatus.OK);
 	  }
 	
-	 /*
-	  *  get Posts from FB and store them to MongoDB
-	  * 
-	  */
-	 @RequestMapping(method = RequestMethod.GET,value="fbList/{descI}")
-	  public ResponseEntity<Alert> insertFromFBList(@PathVariable("descI") String descI){
-		
-		 Alert a1 = new Alert(new ObjectId(),"Visit Morocco2");
-	     alertServ.saveFBAlert(a1,descI);
-	     
-	     return new ResponseEntity<Alert>(a1, HttpStatus.CREATED);
-	  
-	  }
-	  
-	 /*
-	  *  get Posts from Google custom search and store them to MongoDB
-	  * 
-	  */
-	 @RequestMapping(method = RequestMethod.GET,value="cseList/{descI}")
-	  public ResponseEntity<Alert> insertCSEList(@PathVariable("descI") String descI){
-		
-		 Alert a1 = new Alert(new ObjectId(),"Spain alert");
-		 
-	     alertServ.saveGgAlert(a1,descI);
-	     
-	     return new ResponseEntity<Alert>(a1, HttpStatus.CREATED);
-	  
-	  }
+	
 	
 	 @RequestMapping(method = RequestMethod.GET,value="t")
 	  public void tstB(){
@@ -156,7 +146,7 @@ public class ToDBController {
 	 @RequestMapping(method = RequestMethod.GET,value="users/{desc}",produces = MediaType.APPLICATION_JSON_VALUE)
 	  public @ResponseBody ResponseEntity<List<User>> ShowUsersByCostumer(@PathVariable("desc") String desc ){  
 		
-		 List<User> users = customServ.findUsersByCustomer(desc);
+		List<User> users = customServ.findUsersByCustomer(desc);
 		System.out.println(users.toString());
 		return new ResponseEntity<List<User>>(users, HttpStatus.OK);
 	  }
@@ -184,6 +174,17 @@ public class ToDBController {
 		
 		return new ResponseEntity<List<FbPage>>(pages, HttpStatus.OK);
 	  }
+	 
+	/* @RequestMapping(method = RequestMethod.POST,value="creatInst",consumes=MediaType.APPLICATION_JSON_VALUE)
+	  public ResponseEntity<I> createAlert(@RequestBody Alert alert){
+		
+		if(alert != null)
+		  alertServ.saveAlert(alert,alert.getDescI());
+	
+	 	return new ResponseEntity<Alert>(alert, HttpStatus.CREATED);
+	  }
+	 
+	 */
 	 
 }
 
