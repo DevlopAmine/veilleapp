@@ -1,7 +1,10 @@
 package com.start.services;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -16,6 +19,11 @@ import com.restfb.Parameter;
 import com.restfb.json.JsonObject;
 import com.restfb.types.Page;
 import com.restfb.types.Post;
+import com.start.models.SNresult;
+
+
+
+
 
 @Service("fbService")
 public class FBserviceImpl implements FBService {
@@ -113,25 +121,31 @@ public class FBserviceImpl implements FBService {
 		ArrayList<Post> lisP = new ArrayList<>();
 		try{
             
-            Connection<Post> pageFeed = fbClient.fetchConnection(pageId+"/posts", Post.class,Parameter.with("fields","message,created_time,id,link,likes,picture"));
+            Connection<Post> pageFeed = fbClient.fetchConnection(pageId+"/posts", Post.class,Parameter.with("fields","message,created_time,id,link,likes,picture,shares,comments"));
            //Getting posts:
-              
+            Connection<Post> s1 = pageFeed;
+            //s1.getData()
+              String msg =null;
             for (List<Post> feed : pageFeed){
-        		for (Post post : feed ){
-	            	if(post.getMessage().toLowerCase().
-	            			indexOf(keyword.trim().toLowerCase())!=-1)
-	          		{
-	            	
-	                System.out.println("-"+post.getMessage()+" fb.com/"+post.getId()+" "+post.getLink()+" "+post.getPicture());
-	                lisP.add(post);} 
-            	
-            	
+        		for (Post post : feed){
+	        		if(post == null || post.equals(null))	
+	        			System.out.println("null message in this post");
+	        		else {
+	        			if(post.getMessage().toLowerCase().
+		            			indexOf(keyword.trim().toLowerCase())!=-1)
+		          		{
+		            	
+		                System.out.println("-"+post.getMessage()+" fb.com/"+post.getId()+" "+post.getLink()+" "+post.getPicture()+" "+post.getLikes().getData().size()
+		                		+" cmts "+post.getComments().getData().size()+" shares "+post.getShares().getCount());
+		                lisP.add(post);} 
+					}
+        	
             }   
               }
 		}
            
       catch(Exception ex){
-            System.out.println("exeption here"+ex);
+            ex.printStackTrace();
       }
 		return lisP;
 	}
@@ -215,25 +229,178 @@ public class FBserviceImpl implements FBService {
 		// return listP;
 	}
 	
-	public void test()
+	public List<SNresult> requete(String keyword,String pageId)
 	{
-			Connection<JsonObject> feedcon = fbClient.fetchConnection(tab[1]+"/feed", JsonObject.class,Parameter
-					.with("fields","message,created_time,id,permalink_url,likes"));
-
-			int personalLimit = 25;
-			
-		for (List<JsonObject> objectList: feedcon) {
-		   for (JsonObject obj: objectList) {
-		       System.out.println(obj.getJsonObject("likes").getJsonArray("data").length());
-		     
-		       personalLimit--;
-
-		       // break both loops
-		       if (personalLimit == 0) {
-		          return;
-		       }
-		   }
-		}
+		Connection<JsonObject> feedcon = fbClient.fetchConnection(pageId+"/posts", JsonObject.class,Parameter.with("fields","message,created_time,id,link,likes,picture,comments"));
+		
+		List<SNresult> listP = new ArrayList<>();
+		SNresult sc;
+		try {	
+		  
+			for (List<JsonObject> objectList: feedcon) {
+					 
+				for (JsonObject obj: objectList) {
+						
+					if(obj.isNull("message"))
+							System.err.println("null msg");
+						
+						
+					else
+						{
+							if(obj.get("message").toString().toLowerCase().
+			            			indexOf(keyword.trim().toLowerCase())!=-1)
+							{
+								if(obj.isNull("link") && obj.isNull("picture"))
+									sc = new SNresult(obj.get("id").toString(),obj.get("message").toString(),
+											"","");
+								else if(!obj.isNull("link") && obj.isNull("picture"))
+									sc = new SNresult(obj.get("id").toString(),obj.get("message").toString(),
+											obj.get("link").toString(),"");
+								
+								else if(obj.isNull("link") && !obj.isNull("picture"))
+									sc = new SNresult(obj.get("id").toString(),obj.get("message").toString(),
+											"",obj.get("picture").toString());
+								else
+								{
+									sc = new SNresult(obj.get("id").toString(),obj.get("message").toString(),
+											obj.get("link").toString(),obj.get("picture").toString());
+									sc.setDate_creation(formatStrToDate(obj.get("created_time").toString()) );
+								}
+								
+									if(!obj.isNull("likes") && !obj.isNull("comments")) 
+									{
+										sc.setLikes_count(obj.getJsonObject("likes").getJsonArray("data").length());
+										sc.setComts_count(obj.getJsonObject("comments").getJsonArray("data").length());
+									  
+									}
+								
+									else if(obj.isNull("likes") && !obj.isNull("comments"))
+									{
+									
+										sc.setComts_count(obj.getJsonObject("comments").getJsonArray("data").length());
+										
+									}
+									
+									else if(!obj.isNull("likes") && obj.isNull("comments"))
+									{
+										
+										sc.setLikes_count(obj.getJsonObject("likes").getJsonArray("data").length());
+									   
+									   
+									}
+									else{System.err.println("null likes or comments");}
+								
+								listP.add(sc);
+							}
+								
+						}
+						
+						
+						 			      
+					   }
+					
+					}	
+				
+			} catch (Exception e) {
+			e.printStackTrace();
+			}
+			return listP;
 		
 	}
+	
+	
+	@Override
+	public void countLCS(String keyword) {
+		 
+		 Connection<Post> pageFeed = fbClient.fetchConnection(tab[1]+"/feed", Post.class,
+				 Parameter.with("fields","message,created_time,id,link,likes,picture,comments,shares"));
+		 ArrayList<Post> listP = new ArrayList<>();
+		 Post.Likes likes=null;
+		 Post.Comments comments = null;
+		 Post.Shares shares = null;
+		 int personalLimit = 20;
+		 
+		 try {
+			 for (List<Post> feed : pageFeed){
+	             for (Post post : feed){
+	            	 if(post.getMessage().toLowerCase().
+		            			indexOf(keyword.trim().toLowerCase())!=-1)
+	            	 {
+	            		 likes = fbClient.fetchObject(post.getId()+"/likes", Post.Likes.class, 
+	             			    Parameter.with("summary", true), Parameter.with("limit", 1));
+	             			long likesTotalCount = likes.getData().size();
+	             			
+	             	 comments = fbClient.fetchObject(post.getId()+"/comments", Post.Comments.class, 
+	                 			Parameter.with("summary", true), Parameter.with("limit", 1));
+	                 			long ComtsTotalCount = comments.getData().size();    
+	                 			
+	                  shares = fbClient.fetchObject(post.getId()+"/shares", Post.Shares.class, 
+	                     	    Parameter.with("summary", true), Parameter.with("limit", 1));
+	                     		long SharesTotalCount = shares.getCount();		
+	             			
+	             			System.out.println(post.getId()+"was "+likesTotalCount+" liked"+ComtsTotalCount+" commented"+SharesTotalCount+" shared");
+	             			
+	             			 personalLimit--;
+
+	           		       // break both loops
+	           		       if (personalLimit == 0) {
+	           		          return;
+	           		       }
+	               listP.add(post);
+	            	 }
+	            	 
+	             }
+			 }
+		} catch (Exception e) {
+			System.out.println("no more post with this keyword");
+		}
+		
+            
+        }
+		
+	
+	public static String formatDate(Date date)
+	{
+		
+		 
+		  String formattedDate = null;
+		   
+		  SimpleDateFormat sdf = new SimpleDateFormat("MMMM dd, yyyy hh:mm:ss"); 
+		    sdf.setTimeZone(TimeZone.getTimeZone("GMT")); // give a timezone reference for formating (see comment at the bottom
+			formattedDate = sdf.format(date);
+			System.out.println("formatted date  "+formattedDate);
+	        return formattedDate;
+		}
+
+	public static String formatStrToDate(String str)
+	{
+		
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		String formattedDate = null;
+		Date d;
+		try {
+			d = formatter.parse(str);
+			System.out.println("date "+d);       
+			//SimpleDateFormat sdf = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
+			SimpleDateFormat sdf = new SimpleDateFormat("MMMM dd, yyyy hh:mm:ss"); // the format of your date
+			sdf.setTimeZone(TimeZone.getTimeZone("GMT")); // give a timezone reference for formating (see comment at the bottom
+			
+			formattedDate = sdf.format(d);
+			System.out.println("formatted date  "+formattedDate);
+		} catch (ParseException e) {
+			
+			e.printStackTrace();
+		}
+		
+		
+	        return formattedDate;
+		}
+
+
+
+
 }
+
+
+
+

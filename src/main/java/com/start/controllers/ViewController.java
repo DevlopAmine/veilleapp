@@ -22,9 +22,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.start.daoservices.AlertService;
+import com.start.daoservices.CustomerService;
 import com.start.daoservices.InstanceService;
 import com.start.models.Alert;
 import com.start.models.AlertSource;
+import com.start.models.Customer;
 import com.start.models.Instance;
 
 @RestController
@@ -38,7 +40,8 @@ public class ViewController {
 	  private AlertService alertServ;
 	@Autowired
 	  private InstanceService instServ;
-	
+	@Autowired
+	  private CustomerService costServ;
 	
 	
 	
@@ -52,6 +55,7 @@ public class ViewController {
 		 httpHeaders.setContentType(MediaType.APPLICATION_JSON);
 		 httpHeaders.setAccessControlAllowOrigin("*");
 		 httpHeaders.setAccessControlAllowHeaders(headers);
+		
 		
 		 
 		 Alert a = alertServ.findAlertByDesc(descA);
@@ -72,30 +76,36 @@ public class ViewController {
 	 @RequestMapping(method = RequestMethod.POST,value="critereAlt",consumes=MediaType.APPLICATION_JSON_VALUE)
 	  public ResponseEntity<Alert> insertFromListSN(@RequestBody Alert alert){
 		
-		
-		 // filterData(ntw.getFiltredData(alert));
-		  
-		  
-		  //alertServ.saveAlert(alert,"pop1");
-	
 	 	return new ResponseEntity<Alert>(alert, HttpStatus.CREATED);
 	  }
 	 
 	 
 	 @RequestMapping(method = RequestMethod.GET,value="instCost",produces = MediaType.APPLICATION_JSON_VALUE)
 		public  ResponseEntity<List<Instance>> getSelectInstances(){
-		//@RequestParam(value = "descI", required = false) String descI 	
+			
 		    ObjectId oid = new ObjectId("58f73cb53aefb12a44d3c739");
 		    List<Instance> listI = instServ.findInstancesByCustomerId(oid);
-//		    List<Instance> listI = new ArrayList<Instance>();
-//		    
-//		    Instance i = new Instance("pop","aa");Instance i1 = new Instance("aaa","bb");
-//		    listI.add(i);listI.add(i1);
-		    
+	    
 		    		
 		   return new ResponseEntity<List<Instance>>(listI, HttpStatus.OK);
 		
 		}
+	 
+	 @RequestMapping(method = RequestMethod.GET,value="profile",produces=MediaType.APPLICATION_JSON_VALUE)
+	 public ResponseEntity<Customer>  getCoordoneClient(@RequestParam (value="username",required=false) String username)
+	 {
+		 Customer client=costServ.getCustomerByUsername(username);
+		 return new ResponseEntity<Customer>(client, HttpStatus.OK);
+	 }
+	 
+	 @RequestMapping(method = RequestMethod.GET,value="alertsCustomer",produces=MediaType.APPLICATION_JSON_VALUE)
+	 public ResponseEntity<List<Alert>>  getAlertsByClient()
+	 { //@RequestParam (value="name",required=false) String name
+		 
+		 List<Alert> alerts = costServ.findAlertsByCustomer("Amine");
+		 
+		 return new ResponseEntity<List<Alert>>(alerts, HttpStatus.OK);
+	 }
 	 
 	 
 	 

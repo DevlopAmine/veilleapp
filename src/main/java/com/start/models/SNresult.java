@@ -2,6 +2,8 @@ package com.start.models;
 
 
 
+import java.util.Date;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -11,6 +13,10 @@ public class SNresult {
 	private String text;
 	private String url;
 	private String url_img;
+	private String date_creation;
+	private int likes_count;
+	private int comts_count;
+	private int shares_count;
 
 	public SNresult()
 	{
@@ -54,10 +60,39 @@ public class SNresult {
 	public void setUrl_img(String url_img) {
 		this.url_img = url_img;
 	}
+	public int getLikes_count() {
+		return likes_count;
+	}
+	public void setLikes_count(int likes_count) {
+		this.likes_count = likes_count;
+	}
+	public int getComts_count() {
+		return comts_count;
+	}
+	public void setComts_count(int comts_count) {
+		this.comts_count = comts_count;
+	}
+	public int getShares_count() {
+		return shares_count;
+	}
+	public void setShares_count(int shares_count) {
+		this.shares_count = shares_count;
+	}
+	public String getDate_creation() {
+		return date_creation;
+	}
+	
+	public void setDate_creation(String date_creation) {
+		this.date_creation = date_creation;
+	}
 	@Override
 	public String toString() {
-		return "SNresult [idR=" + idR + ", text=" + text + ", url=" + url + "]";
+		return "SNresult [idR=" + idR + ", text=" + text + ", url=" + url + ", url_img=" + url_img + ", date_creation="
+				+ date_creation + ", likes_count=" + likes_count + ", comts_count=" + comts_count + ", shares_count="
+				+ shares_count + "]";
 	}
+	
+	
 	
 	
 	

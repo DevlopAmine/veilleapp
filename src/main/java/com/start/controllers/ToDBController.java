@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,7 @@ import com.start.daoservices.FBpageService;
 import com.start.daoservices.InstanceService;
 import com.start.models.Alert;
 import com.start.models.AlertSource;
+import com.start.models.Customer;
 import com.start.models.FbPage;
 import com.start.models.Instance;
 import com.start.models.User;
@@ -67,9 +69,9 @@ public class ToDBController {
 	  }
 	
 	@RequestMapping(method = RequestMethod.POST,value="newcustom")
-	  public void createCustomer(@RequestBody HashMap<String, Object> CustomMap){
+	  public void createCustomer(@RequestBody Customer Customer){
 		
-		 customServ.createCustomer(CustomMap);
+		 customServ.createCustomer(Customer);
 		
 	  }
 	  
@@ -173,6 +175,28 @@ public class ToDBController {
 		 List<FbPage> pages = fbPageServ.getPagesByParent(parent);
 		
 		return new ResponseEntity<List<FbPage>>(pages, HttpStatus.OK);
+	  }
+	 
+	 @RequestMapping(method = RequestMethod.PUT,value="updateUser",consumes=MediaType.APPLICATION_JSON_VALUE)
+	  public ResponseEntity<Customer> updateProfile(@RequestBody Customer cust){
+		
+		 
+		if(cust != null)
+			customServ.update(cust);
+		  
+	
+	 	return new ResponseEntity<Customer>(cust, HttpStatus.OK);
+	  }
+	 
+	 @RequestMapping(method = RequestMethod.PUT,value="updateMention",consumes=MediaType.APPLICATION_JSON_VALUE)
+	  public ResponseEntity<AlertSource> updateMention(@RequestBody AlertSource als){
+		
+		 
+		if(als != null)
+			alertServ.UpdateAlertSourceById(als);
+		  
+	
+	 	return new ResponseEntity<AlertSource>(als, HttpStatus.OK);
 	  }
 	 
 	/* @RequestMapping(method = RequestMethod.POST,value="creatInst",consumes=MediaType.APPLICATION_JSON_VALUE)

@@ -56,7 +56,7 @@ public class TweetServiceImpl implements TweetService {
 	@Override
 	public List<Tweet> getTweets(String hashtag) {
 		
-		return twitter.searchOperations().search(hashtag,10).getTweets();
+		return twitter.searchOperations().search(hashtag,30).getTweets();
 	}
 	
 	

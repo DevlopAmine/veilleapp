@@ -74,11 +74,14 @@ public class FacebookController {
 	@RequestMapping(value="/lower", produces = MediaType.APPLICATION_JSON_UTF8_VALUE,method= RequestMethod.GET)
 	public List<SNresult> lowerkey()
 	{
-
+		
 		String pageId = fbPageServ.getPageId("VISIT MOROCCO");
-		List<Post> listP = fbService.getLowerCaseKeyword("Visit Morocco", pageId);
+		List<SNresult> listP = fbService.requete("morocco", pageId);
 		List<SNresult> resultfb= new ArrayList<>();
-		if(listP.size()!=0)
+		
+		FBserviceImpl.formatStrToDate(listP.get(0).getDate_creation());
+		//System.out.println("After"+FBserviceImpl.formatStrToDate(listP.get(0).getCreatedTime()));
+		/*if(listP.size()!=0)
 		{
 		SNresult sc = new SNresult(listP.get(0).getId(),listP.get(0).getMessage(),listP.get(0).getLink(),listP.get(0).getPicture());
 		SNresult sc1 = new SNresult(listP.get(1).getId(),listP.get(1).getMessage(),listP.get(1).getLink(),listP.get(0).getPicture());
@@ -87,7 +90,7 @@ public class FacebookController {
 		else
 		{
 			System.err.println("No data found");
-		}
+		}*/
 		
 		
 		return resultfb;
@@ -108,10 +111,21 @@ public class FacebookController {
 		
 	}
 	@RequestMapping(value="/tst", produces = MediaType.APPLICATION_JSON_UTF8_VALUE,method= RequestMethod.GET)
-	public void test()
+	public List<SNresult> test()
 	{
-		 fbService.test();
+		String pageId = fbPageServ.getPageId("VISIT MOROCCO");
+		return fbService.requete("Visit Morocco", pageId);
 		
+		
+	}
+	
+	@RequestMapping(value="/lw", produces = MediaType.APPLICATION_JSON_UTF8_VALUE,method= RequestMethod.GET)
+	public List<Post> lowerTst()
+	{
+
+		//String pageId = fbPageServ.getPageId("VISIT MOROCCO");
+		List<Post> listP = fbService.getLowerCaseKeyword("Morocco", "432050416881597");
+		return listP;
 	}
 }
 

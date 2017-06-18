@@ -1,7 +1,6 @@
 package com.start.models;
 
-
-
+import java.util.Date;
 
 public class AlertSource {
 
@@ -10,8 +9,11 @@ public class AlertSource {
 	private String text;
 	private String link;
 	private String link_img;
-	
-	
+	private String date_creation;
+	private int likes_count;
+	private int comts_count;
+	private int shares_count;
+	boolean avis;
 	public 	AlertSource()
 	{}
 	public AlertSource(String id,String txt,String l,String imgL)
@@ -54,6 +56,41 @@ public class AlertSource {
 	}
 	public void setLink_img(String link_img) {
 		this.link_img = link_img;
+	}
+	
+	public int getLikes_count() {
+		return likes_count;
+	}
+	public void setLikes_count(int likes_count) {
+		this.likes_count = likes_count;
+	}
+	public int getComts_count() {
+		return comts_count;
+	}
+	public void setComts_count(int comts_count) {
+		this.comts_count = comts_count;
+	}
+	public int getShares_count() {
+		return shares_count;
+	}
+	public void setShares_count(int shares_count) {
+		this.shares_count = shares_count;
+	}
+	public String getDate_creation() {
+		return date_creation;
+	}
+	
+	public void setDate_creation(String date_creation) {
+		this.date_creation = date_creation;
+	}
+	
+	
+	
+	public boolean isAvis() {
+		return avis;
+	}
+	public void setAvis(boolean avis) {
+		this.avis = avis;
 	}
 	@Override
 	public String toString() {

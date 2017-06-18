@@ -10,7 +10,11 @@ import java.util.List;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 
+import com.start.models.Alert;
 import com.start.models.Customer;
 import com.start.models.User;
 import com.start.repositories.CustomRepository;
@@ -21,22 +25,14 @@ public class CustomerServiceImpl implements CustomerService{
 	private CustomRepository customRep;
 	@Autowired 
 	MongoTemplate mongoTemplate;
+	@Autowired
+	private AlertService alertServ;
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public void createCustomer(HashMap<String, Object> CustomMap) {
-		  List<ObjectId> objIdList = new ArrayList<>();
-		  List<Object> list = (List<Object>) CustomMap.get("inst_ids");
-		  List<User> listU = (List<User>) CustomMap.get("users");
-		  for (int i=0;i<list.size();i++) {
-			objIdList.add(new ObjectId(String.valueOf(list.get(i))));
-			 //System.out.println( String.valueOf(list.get(i)));
-		}
-		
-		  Customer custom = new Customer(CustomMap.get("description").toString());
-		  custom.setListIds(objIdList);
-		  custom.setListusers(listU);
-		customRep.save(custom);
+	public void createCustomer(Customer Customer) {
+		  
+		customRep.save(Customer);
 		
 	}
 	@Override
@@ -44,6 +40,50 @@ public class CustomerServiceImpl implements CustomerService{
 		Customer listcost =  mongoTemplate.findOne(query(where("description").is(description)),Customer.class);
 		List<User> listusers = listcost.getListusers();
 		return listusers;
+		
+	}
+	
+	@Override
+	public Customer getCustomer(String name) {
+		Customer client = mongoTemplate.findOne(query(where("name").is(name)), Customer.class, "customer");
+		return client;
+		
+	}
+	@Override
+	public Customer getCustomerByUsername(String username) {
+		Customer client = mongoTemplate.findOne(query(where("username").is(username)), Customer.class, "customer");
+		System.err.println(client.toString());
+		return client;
+		
+	}
+	
+	@Override
+	public void update(Customer cust) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("email").is(cust.getEmail()));
+		query.fields().include("email");
+
+		Update update = new Update();
+		update.set("name", cust.getName());
+		update.set("tel", cust.getTel());
+		update.set("description", cust.getDescription());
+
+		mongoTemplate.updateFirst(query, update,Customer.class);
+		
+	}
+	@Override
+	public List<Alert> findAlertsByCustomer(String nom) {
+		
+		Customer client = getCustomer(nom);
+		List<ObjectId> instIds = client.getListIds();
+		List<Alert> alerts = new ArrayList<Alert>();
+	
+		for (ObjectId objectId : instIds) {
+			alerts.addAll(alertServ.findAlertsByInstanceId(objectId));
+			
+		}
+		
+		return alerts;
 		
 	}
 

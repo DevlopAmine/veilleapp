@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.start.daoservices.AlertService;
+import com.start.models.Alert;
 import com.start.models.SNresult;
+import com.start.services.FBserviceImpl;
 import com.start.services.NewTwServiceImpl;
 import com.start.services.TweetService;
 
@@ -32,8 +36,9 @@ public static final String TWITTER_BASE_URI ="svc/v1/tweets";
 
 @Autowired
 private TweetService TwService;
+
 @Autowired
-private NewTwServiceImpl ntw;
+private AlertService als;
 
 @RequestMapping(value="{hashtag}" ,produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 public List<SNresult> getTweets(@PathVariable final String hashtag)
@@ -127,31 +132,10 @@ public List<Tweet> TweetsByInterval()  {
 public List<SNresult> filterData()  
 {
 	
-	//List<Tweet> tweetList = ntw.getFiltredData();
-	List<Tweet> tweetList = null;
-	List<SNresult> resL = new ArrayList<>();
-    
-  
-	for (Tweet tweet : tweetList) 
-	{
-		Iterator<MediaEntity> mediaI = tweet.getEntities().getMedia().listIterator();
-		
-		if(mediaI.equals(null))
-		{
-			System.out.println("null media");
-			
-		}
-		while(mediaI.hasNext())
-		{
-		 MediaEntity media = mediaI.next();
-		 //resL.add(new SNresult(tweet.getIdStr(),tweet.getText(), media.getUrl()));
-		 //System.out.println(resL.get(c).toString());
-		 
-		}
-	
-	
-	}
-	return resL;
+	List<Tweet> tweetList = TwService.getTweets("trump");
+	System.out.println("tweet time"+tweetList.get(0).getCreatedAt());
+	System.out.println("Tweet time  After "+FBserviceImpl.formatDate(tweetList.get(0).getCreatedAt())  ) ;
+	return als.filterData(tweetList);
 }
 
 }

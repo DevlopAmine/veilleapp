@@ -23,7 +23,7 @@ public class Alert {
 	
 	private List<AlertSource> alertsources;
 	
-	private String oblKeywords;
+	
 	private String optKeywords;
 	private String forbidenKeywords;
 	private String srcAutorises;
@@ -38,15 +38,7 @@ public class Alert {
 		this.id=id;
 		this.descA= desc;
 	}
-	/*public Alert(String desc,String oblKw,String optKw,String frbdKw,String srcA,String srcB)
-	{
-		this.descA= desc;
-		this.oblKeywords=oblKw;
-		this.optKeywords=optKw;
-		this.forbidenKeywords=frbdKw;
-		this.srcAutorises=srcA;
-		this.srcBloques=srcB;
-	}*/
+	
 
 	
 	
@@ -82,14 +74,7 @@ public class Alert {
 		this.alertsources = alertsources;
 	}
 	
-	public String getOblKeywords() {
-		if(this.oblKeywords.equals(null))
-			return "";
-		return oblKeywords;
-	}
-	public void setOblKeywords(String oblKeywords) {
-		this.oblKeywords = oblKeywords;
-	}
+	
 	public String getOptKeywords() {
 		if(this.optKeywords.equals(null))
 			return "";
@@ -141,7 +126,7 @@ public class Alert {
 	
 	@Override
 	public String toString() {
-		return "Alert [id=" + id + ", descA=" + descA + ", oblKeywords=" + oblKeywords + ", optKeywords=" + optKeywords
+		return "Alert [id=" + id + ", descA=" + descA  + ", optKeywords=" + optKeywords
 				+ ", forbidenKeywords=" + forbidenKeywords + ", srcAutorises=" + srcAutorises + ", srcBloques="
 				+ srcBloques + ", langue=" + langue + "]";
 	}
