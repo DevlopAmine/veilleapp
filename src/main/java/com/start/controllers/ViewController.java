@@ -5,11 +5,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.inject.Inject;
+import javax.servlet.http.HttpSession;
+
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,18 +25,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
+import com.restfb.types.Page;
 import com.start.daoservices.AlertService;
 import com.start.daoservices.CustomerService;
 import com.start.daoservices.InstanceService;
 import com.start.models.Alert;
 import com.start.models.AlertSource;
 import com.start.models.Customer;
+import com.start.models.FbPage;
 import com.start.models.Instance;
+import com.start.services.FBService;
+import com.start.services.FileSessionService;
 
 @RestController
 @RequestMapping("/view")
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost", maxAge = 3600)
 public class ViewController {
 	private static final Logger log = LoggerFactory.getLogger(ToDBController.class);
 	
@@ -42,7 +52,10 @@ public class ViewController {
 	  private InstanceService instServ;
 	@Autowired
 	  private CustomerService costServ;
-	
+	@Autowired
+	  private Customer cl;
+	@Autowired
+	private FileSessionService fileSessionServ;
 	
 	
 	@RequestMapping(method = RequestMethod.GET,value="mentions/{descA}",produces = MediaType.APPLICATION_JSON_VALUE)
@@ -73,20 +86,17 @@ public class ViewController {
 	 }
 	 
 	 
-	 @RequestMapping(method = RequestMethod.POST,value="critereAlt",consumes=MediaType.APPLICATION_JSON_VALUE)
-	  public ResponseEntity<Alert> insertFromListSN(@RequestBody Alert alert){
-		
-	 	return new ResponseEntity<Alert>(alert, HttpStatus.CREATED);
-	  }
 	 
 	 
 	 @RequestMapping(method = RequestMethod.GET,value="instCost",produces = MediaType.APPLICATION_JSON_VALUE)
 		public  ResponseEntity<List<Instance>> getSelectInstances(){
 			
-		    ObjectId oid = new ObjectId("58f73cb53aefb12a44d3c739");
-		    List<Instance> listI = instServ.findInstancesByCustomerId(oid);
-	    
-		    		
+		  //ObjectId oid = new ObjectId("58f73cb53aefb12a44d3c739");
+		 //Customer cl= costServ.getCustomerByUsername(username);
+		 cl = fileSessionServ.readSession();
+		
+		 List<Instance> listI = instServ.findInstancesByCustomerId(cl.getId());
+		 
 		   return new ResponseEntity<List<Instance>>(listI, HttpStatus.OK);
 		
 		}
@@ -100,16 +110,18 @@ public class ViewController {
 	 
 	 @RequestMapping(method = RequestMethod.GET,value="alertsCustomer",produces=MediaType.APPLICATION_JSON_VALUE)
 	 public ResponseEntity<List<Alert>>  getAlertsByClient()
-	 { //@RequestParam (value="name",required=false) String name
-		 
-		 List<Alert> alerts = costServ.findAlertsByCustomer("Amine");
+	 { 
+		
+		 cl = fileSessionServ.readSession();
+		 List<Alert> alerts = costServ.findAlertsByCustomer(cl.getName());
 		 
 		 return new ResponseEntity<List<Alert>>(alerts, HttpStatus.OK);
 	 }
+	
+	
 	 
 	 
-	 
-	 
+	
 	 
 	 
 

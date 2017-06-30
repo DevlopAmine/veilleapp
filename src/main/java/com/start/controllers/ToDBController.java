@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+
 import org.apache.http.entity.ContentType;
 import org.bson.types.ObjectId;
 import org.slf4j.Logger;
@@ -20,9 +21,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.restfb.types.Page;
 import com.start.daoservices.AlertService;
 import com.start.daoservices.CustomerService;
 import com.start.daoservices.FBpageService;
@@ -33,6 +36,7 @@ import com.start.models.Customer;
 import com.start.models.FbPage;
 import com.start.models.Instance;
 import com.start.models.User;
+import com.start.services.FileSessionService;
 import com.start.services.NewTwServiceImpl;
  
 
@@ -55,6 +59,10 @@ public class ToDBController {
 	  private CustomerService customServ;
 	@Autowired
 	  private FBpageService fbPageServ;
+	 @Autowired
+	    private Customer cl;
+	 @Autowired
+		private FileSessionService fileSessionServ;
 	
   /**
 	   * Create Instance 
@@ -63,8 +71,12 @@ public class ToDBController {
 	 */
 	  @RequestMapping(method = RequestMethod.POST,value="creatInst",consumes=MediaType.APPLICATION_JSON_VALUE)
 	  public void createInstance(@RequestBody Instance instance){
-	    
+		
+		  
+		cl = fileSessionServ.readSession();
+		instance.setCustomer_id(cl.getId());
 		instServ.saveInstance(instance);
+		customServ.addInstToCustomer(instance);
 		
 	  }
 	
@@ -75,22 +87,20 @@ public class ToDBController {
 		
 	  }
 	  
-	  /*@RequestMapping(method = RequestMethod.GET,value="saveAlert/{descI}")
-	  public ResponseEntity<Alert> insertFromListSN(@PathVariable("descI") String descI){
-		
-		  Alert alert = new Alert(new ObjectId(),"tstA");
-		  alertServ.saveAlert(alert,descI);
-	
-	 	return new ResponseEntity<Alert>(alert, HttpStatus.CREATED);
-	  }*/
-	  
 	  @RequestMapping(method = RequestMethod.POST,value="critereAlt",consumes=MediaType.APPLICATION_JSON_VALUE)
 	  public ResponseEntity<Alert> createAlert(@RequestBody Alert alert){
-		
+		String resp = null;
+		ResponseEntity<Alert> res = new ResponseEntity<Alert>(alert, HttpStatus.NO_CONTENT);;
 		if(alert != null)
-		  alertServ.saveAlert(alert,alert.getDescI());
+			{
+			resp = alertServ.saveAlert(alert,alert.getDescI());
+			if(resp=="Alert updated" || resp =="Alert added")
+				res = new ResponseEntity<Alert>(alert, HttpStatus.CREATED);
+			else res = new ResponseEntity<Alert>(alert, HttpStatus.NOT_FOUND);
+			}
+		  
 	
-	 	return new ResponseEntity<Alert>(alert, HttpStatus.CREATED);
+	 	return res;
 	  }
 	  
 	  @RequestMapping(method = RequestMethod.DELETE,value="/{alertId}")
@@ -128,14 +138,6 @@ public class ToDBController {
 	    return new ResponseEntity<String>("Alerts deleted successfully", HttpStatus.NO_CONTENT);
 	  }
 	 
-	 @RequestMapping(method = RequestMethod.GET,value="ta")
-		public void tstA(){
-			String descA="Visit Morocco2";
-			//alertServ.findAlertId(descA);
-		   
-		  // return new ResponseEntity<Alert>(a1, HttpStatus.CREATED);
-		
-		}
 	 
 	 @RequestMapping(method = RequestMethod.GET,value="instances/{CostId}",produces = MediaType.APPLICATION_JSON_VALUE)
 	  public @ResponseBody ResponseEntity<List<Instance>> ShowInstancesByCostumer(@PathVariable("CostId") String CostId ){  
@@ -153,29 +155,48 @@ public class ToDBController {
 		return new ResponseEntity<List<User>>(users, HttpStatus.OK);
 	  }
 	 
-	 @RequestMapping(method = RequestMethod.POST,value="fbpage")
-	  public void insertFbPage(@RequestBody(required=false) Map<String, Object> AlertMap )
+	 @RequestMapping(method = RequestMethod.POST,value="fbpages",produces=MediaType.APPLICATION_JSON_VALUE,consumes=MediaType.APPLICATION_JSON_VALUE)
+	  public ResponseEntity<Boolean> insertFbPage(@RequestBody(required=false) Map<String, Object> AlertMap )
 	 {
+		 ResponseEntity<Boolean> resp;
 		
-		 String descA = AlertMap.get("descA").toString();
+		 String descA = AlertMap.get("parent").toString();
 		 if(alertServ.getAlert(descA)!=null)
-			 fbPageServ.savePage(alertServ.getAlert(descA));
-		 else 
-		 {
+			 {
+			 System.err.println("cette alerte existe deja, ses pages FB existent dans la BD  !!!");
+			 resp =  new ResponseEntity<Boolean>(false, HttpStatus.FORBIDDEN);
+			 //fbPageServ.savePage(alertServ.getAlert(descA));
+			 }
+			
+		 else{
+			System.err.println( "here the descI:  "+AlertMap.get("descI").toString() );
+			 
 			 Alert alert = new Alert(new ObjectId(),descA); 
-			 alert.setInstanceId(new ObjectId(AlertMap.get("instanceId").toString()));
+			 alert.setInstanceId(instServ.findInstanceId(AlertMap.get("descI").toString()));
 			 fbPageServ.savePage(alert);
+			 resp =  new ResponseEntity<Boolean>(false, HttpStatus.FORBIDDEN);
 		 }
+		 
+		 return resp;
 	 
-	  }
-	 
-	 @RequestMapping(method = RequestMethod.GET,value="getfbpage/{parent}",produces = MediaType.APPLICATION_JSON_VALUE)
+	  } 
+	/* @RequestMapping(method = RequestMethod.GET,value="getfbpage/{parent}",produces = MediaType.APPLICATION_JSON_VALUE)
 	  public @ResponseBody ResponseEntity<List<FbPage>> ShowFBpages(@PathVariable("parent") String parent ){  
 		
 		 List<FbPage> pages = fbPageServ.getPagesByParent(parent);
 		
 		return new ResponseEntity<List<FbPage>>(pages, HttpStatus.OK);
+	  }*/
+	 
+	 
+	 @RequestMapping(method = RequestMethod.GET,value="getfbpages",produces = MediaType.APPLICATION_JSON_VALUE)
+	  public @ResponseBody ResponseEntity<List<FbPage>> ShowFBpages(){  
+		
+		 List<FbPage> pages = fbPageServ.getPages();
+		
+		return new ResponseEntity<List<FbPage>>(pages, HttpStatus.OK);
 	  }
+	 
 	 
 	 @RequestMapping(method = RequestMethod.PUT,value="updateUser",consumes=MediaType.APPLICATION_JSON_VALUE)
 	  public ResponseEntity<Customer> updateProfile(@RequestBody Customer cust){
@@ -189,27 +210,44 @@ public class ToDBController {
 	  }
 	 
 	 @RequestMapping(method = RequestMethod.PUT,value="updateMention",consumes=MediaType.APPLICATION_JSON_VALUE)
-	  public ResponseEntity<AlertSource> updateMention(@RequestBody AlertSource als){
-		
+	  public ResponseEntity<AlertSource> updateMention(@RequestBody AlertSource als,@RequestParam (value="descA",required=true) String descA){
+		ResponseEntity<AlertSource> resp;
+		Object res = alertServ.UpdateAlertSourceById(als,descA);
+		if(res != null)
+		{
+			 
+			  resp = new ResponseEntity<AlertSource>(als, HttpStatus.OK);
+		}
+		else 
+		{
+			resp = new ResponseEntity<AlertSource>(als, HttpStatus.NOT_FOUND);
+		}
+		return resp;
 		 
-		if(als != null)
-			alertServ.UpdateAlertSourceById(als);
-		  
-	
-	 	return new ResponseEntity<AlertSource>(als, HttpStatus.OK);
 	  }
 	 
-	/* @RequestMapping(method = RequestMethod.POST,value="creatInst",consumes=MediaType.APPLICATION_JSON_VALUE)
-	  public ResponseEntity<I> createAlert(@RequestBody Alert alert){
-		
-		if(alert != null)
-		  alertServ.saveAlert(alert,alert.getDescI());
-	
-	 	return new ResponseEntity<Alert>(alert, HttpStatus.CREATED);
+	 
+	 @RequestMapping(method = RequestMethod.DELETE,value="deleteMention",consumes=MediaType.APPLICATION_JSON_VALUE)
+	  public ResponseEntity<String> updateMention(@RequestParam (value="ids",required=true) String ids,@RequestParam (value="descA",required=true) String descA){
+		ResponseEntity<String> resp;
+		Object res = alertServ.deleteAlertSourceById(ids, descA);
+		if(res != null)
+		{
+			 
+			  resp = new ResponseEntity<String>(ids+" has been deleted", HttpStatus.NO_CONTENT);
+		}
+		else 
+		{
+			resp = new ResponseEntity<String>("ERROR in removing", HttpStatus.NOT_FOUND);
+		}
+		return resp;
+		 
 	  }
-	 
-	 */
-	 
+	
+
+
+	
+
 }
 
 

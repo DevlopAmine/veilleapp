@@ -31,6 +31,10 @@ public class Alert {
 	private String langue;
 	private String descI;
 	
+	private String srcAutorisesTw;
+	private String srcBloquesTw;
+	private String fbPage;
+	
 	
 	public Alert(){}
 	public Alert(ObjectId id,String desc)
@@ -107,6 +111,24 @@ public class Alert {
 	public void setSrcBloques(String srcBloques) {
 		this.srcBloques = srcBloques;
 	}
+	
+	
+	public String getSrcAutorisesTw() {
+		if(this.srcAutorisesTw.equals(null))
+			return "";
+		return srcAutorisesTw;
+	}
+	public void setSrcAutorisesTw(String srcAutorisesTw) {
+		this.srcAutorisesTw = srcAutorisesTw;
+	}
+	public String getSrcBloquesTw() {
+		if(this.srcBloquesTw.equals(null))
+			return "";
+		return srcBloquesTw;
+	}
+	public void setSrcBloquesTw(String srcBloquesTw) {
+		this.srcBloquesTw = srcBloquesTw;
+	}
 	public String getLangue() {
 		if(this.langue.equals(null))
 			return "";
@@ -124,6 +146,10 @@ public class Alert {
 		this.descI = descI;
 	}
 	
+	
+	public String getFbPage() {
+		return fbPage;
+	}
 	@Override
 	public String toString() {
 		return "Alert [id=" + id + ", descA=" + descA  + ", optKeywords=" + optKeywords

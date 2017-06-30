@@ -15,6 +15,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.web.context.request.RequestContextListener;
+
 import com.start.config.JwtAuthenticationEntryPoint;
 
 @SuppressWarnings("SpringJavaAutowiringInspection")
@@ -52,6 +55,12 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     	httpSecurity
         // we don't need CSRF because our token is invulnerable
         .csrf().disable();
+    	httpSecurity.sessionManagement()
+        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+        ;
+    	
+    	httpSecurity.sessionManagement()
+    	  .invalidSessionUrl("/user/invalid");
     	/*     httpSecurity
                 // we don't need CSRF because our token is invulnerable
                 .csrf().disable()
@@ -73,4 +82,18 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         // disable page caching
         httpSecurity.headers().cacheControl();*/
     }
+    
+    @Bean
+    public HttpSessionEventPublisher httpSessionEventPublisher() {
+        return new HttpSessionEventPublisher();
+    }
+    
+    @Bean public RequestContextListener requestContextListener(){
+        return new RequestContextListener();
+    } 
+
+   
+       
+    
+    
 }

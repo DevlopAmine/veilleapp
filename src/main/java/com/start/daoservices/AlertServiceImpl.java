@@ -13,12 +13,16 @@ import java.util.stream.Stream;
 import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.social.twitter.api.MediaEntity;
 import org.springframework.social.twitter.api.Tweet;
 
 import com.google.api.services.customsearch.model.Result;
+import com.mongodb.BasicDBObject;
 import com.mongodb.WriteResult;
 import com.start.models.Alert;
 import com.start.models.AlertSource;
@@ -53,9 +57,10 @@ public class AlertServiceImpl implements AlertService {
 	
 	final static Logger logger = Logger.getLogger(AlertServiceImpl.class);
 	@Override
-	public void saveAlert(Alert alert,String descI) {
+	public String saveAlert(Alert alert,String descI) {
 			
 			List<SNresult> fbL = getFBdata(alert);
+		    //List<SNresult> fbL =null;
 			Map<String, List<Map<String, Object>>> pageMap;
 			List<SNresult> tweetL = filterData(ntw.getFiltredData(alert));
 			List<Result> Ggresult= ngw.searchedResults(alert);
@@ -84,6 +89,7 @@ public class AlertServiceImpl implements AlertService {
 				 al.setLikes_count(sNresult.getLikes_count());
 				 al.setComts_count(sNresult.getComts_count());
 				 al.setShares_count(sNresult.getShares_count());
+				 al.setAvis("");
 				 
 				 list.add(al);
 				 System.err.println(list.get(c).getLink()+"; "+list.get(c).getText()+"; "+list.get(c).getLink_img());
@@ -91,7 +97,7 @@ public class AlertServiceImpl implements AlertService {
 				 
 			}
 			
-			persistAlert(alert, list,descI);
+			return persistAlert(alert, list,descI);
 			
 	}
 
@@ -140,13 +146,15 @@ public class AlertServiceImpl implements AlertService {
 		return a;
 	}
 	@Override
-	public void persistAlert(Alert alert,List<AlertSource> list,String descI)
+	public String persistAlert(Alert alert,List<AlertSource> list,String descI)
 	{
+		String resp="";
 		if(issetAlert(alert.getDescA()))
 		{
 			Update update = new Update();
 			update.pushAll("alertsources", list.toArray());
 			mongoTemplate.updateFirst(query(where("descA").is(alert.getDescA())), update, Alert.class);
+			resp ="Alert updated";
 		}
 	 
 		else
@@ -155,7 +163,9 @@ public class AlertServiceImpl implements AlertService {
 			  alert.setInstanceId(InstServ.findInstanceId(descI));
 			  alert.setAlertsources(list);
 			  alertRepo.save(alert);
+			  resp="Alert added";
 		}
+		return resp;
 		
 	}
 	@Override
@@ -191,10 +201,10 @@ public class AlertServiceImpl implements AlertService {
 	 
 	 private List<SNresult> getFBdata(Alert alert)
 	 {
-		    String pageId = fbPageServ.getPageId("Visit Morocco -  Moroccan National Tourist Office");
+		    String pageId = fbPageServ.getPageId(alert.getFbPage());
 			List<SNresult> listSN = fbService.requete(alert.getDescA(), pageId);
 			List<SNresult> newList = new ArrayList<>();
-			int i=0;
+			/*int i=0;
 			do {
 				i++;
 				newList.add(listSN.get(i));
@@ -202,22 +212,66 @@ public class AlertServiceImpl implements AlertService {
 			} while (i<30);
 				
 				
-			logger.info("post of FB sent To DB  "+i);
-			return newList;
+			logger.info("post of FB sent To DB  "+i);*/
+			return listSN;
 		 
 	 }
 	@Override
-	 public boolean UpdateAlertSourceById(AlertSource als) {
-		 
-		 Update update = new Update();
-		 update.set("alertsources.avis", als.isAvis());
-			WriteResult res =  mongoTemplate.updateFirst(query(where("alertsources.ids").is(als.getIds()) ) ,
-				    update,
-				    Alert.class,"alert");
-			if(res.getUpsertedId().toString()==null)
-				return false;
-			
-			return true;
+	 public WriteResult UpdateAlertSourceById(AlertSource als,String descA) {
+		WriteResult writeResult = null;
+		 Query query = new Query();
+         query.addCriteria(Criteria.where("descA").is(descA).and("alertsources.ids").is(als.getIds()) );
+         Update update = new Update();
+         update.set("alertsources.$.avis", als.getAvis());
+         
+         try {
+
+             System.out.println(query.toString());
+             System.out.println(update.toString());
+             writeResult =  mongoTemplate.updateMulti(query, update, Alert.class, "alert");
+         if (writeResult != null) {
+
+             System.out.println("111111111111111111 Update with position parameter has been successful :"
+                     + writeResult.toString());
+         							}
+         
+     } catch (DataIntegrityViolationException die) {
+         System.out.println("Update failed ====>" + die.getMessage());
+         System.out.println("Trying to update without position parameters ...");
+
+     			}
+
+		return writeResult;
+		}
+	
+	@Override
+	 public WriteResult deleteAlertSourceById(String ids,String descA) {
+		WriteResult writeResult = null;
+		AlertSource als = new AlertSource();als.setIds(ids);
+		 Query query = new Query();
+         query.addCriteria(Criteria.where("descA").is(descA).and("alertsources.ids").is(ids) );
+        
+        
+        try {
+
+            System.out.println(query.toString());
+            //System.out.println(update.toString());
+            Update update = new Update().pull("alertsources", new BasicDBObject("ids", ids));
+            writeResult = mongoTemplate.updateFirst(query, update, Alert.class);
+            	//System.out.println(wc.getLastError());
+        if (writeResult != null) {
+
+            System.out.println("111111111111111111 Remove with position parameter has been successful :"
+                    + writeResult.toString());
+        							}
+        
+    } catch (DataIntegrityViolationException die) {
+        System.out.println("Update failed ====>" + die.getMessage());
+        System.out.println("Trying to Remove without position parameters ...");
+
+    			}
+
+		return writeResult;
 		}
 	
 }

@@ -33,8 +33,8 @@ public class FacebookController {
 	@RequestMapping(value="/idscollect",produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	public List<Page> getIdPages()
 	{
-		return fbService.pageIdscollect();
-		
+		//return fbService.pageIdscollect();
+		return null;
 	}
 	
 	
@@ -120,12 +120,11 @@ public class FacebookController {
 	}
 	
 	@RequestMapping(value="/lw", produces = MediaType.APPLICATION_JSON_UTF8_VALUE,method= RequestMethod.GET)
-	public List<Post> lowerTst()
-	{
-
-		//String pageId = fbPageServ.getPageId("VISIT MOROCCO");
+	public void lowerTst()
+	{/*//String pageId = fbPageServ.getPageId("VISIT MOROCCO");
 		List<Post> listP = fbService.getLowerCaseKeyword("Morocco", "432050416881597");
-		return listP;
+		return listP;*/
+		
 	}
 }
 

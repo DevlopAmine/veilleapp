@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
@@ -20,6 +21,9 @@ import com.restfb.json.JsonObject;
 import com.restfb.types.Page;
 import com.restfb.types.Post;
 import com.start.models.SNresult;
+
+import io.jsonwebtoken.lang.Arrays;
+import javassist.bytecode.stackmap.BasicBlock.Catch;
 
 
 
@@ -40,11 +44,11 @@ public class FBserviceImpl implements FBService {
 		}
 	
 	@Override
-	public List<Page> pageIdscollect() {
+	public List<Page> pageIdscollect(String queryForPage) {
 		ArrayList<Page> listId = new ArrayList<>();
 		
 		Connection<Page> publicSearch = fbClient.fetchConnection("search",Page.class,Parameter.with("type","page"),
-				Parameter.with("q","visit Morocco"),Parameter.with("fields", "id,link,name")
+				Parameter.with("q",queryForPage),Parameter.with("fields", "id,link,name")
 			   );
 		for(List<Page>  pageFeed : publicSearch)
 		{
@@ -235,8 +239,9 @@ public class FBserviceImpl implements FBService {
 		
 		List<SNresult> listP = new ArrayList<>();
 		SNresult sc;
+		int personalLimit = 10;
 		try {	
-		  
+		  outerloop:
 			for (List<JsonObject> objectList: feedcon) {
 					 
 				for (JsonObject obj: objectList) {
@@ -296,7 +301,9 @@ public class FBserviceImpl implements FBService {
 						}
 						
 						
-						 			      
+						 personalLimit--;   
+						 if(personalLimit == 0)
+							 break outerloop;
 					   }
 					
 					}	
@@ -309,8 +316,11 @@ public class FBserviceImpl implements FBService {
 	}
 	
 	
+	
+	
 	@Override
 	public void countLCS(String keyword) {
+
 		 
 		 Connection<Post> pageFeed = fbClient.fetchConnection(tab[1]+"/feed", Post.class,
 				 Parameter.with("fields","message,created_time,id,link,likes,picture,comments,shares"));

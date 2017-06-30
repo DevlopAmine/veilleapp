@@ -8,7 +8,7 @@ import com.start.models.SNresult;
 
 public interface FBService {
 
-	public List<Page> pageIdscollect();
+	public List<Page> pageIdscollect(String queryForPgae);
 	public List<Post> feedOfPage();
 	public List<Post> precizeKey(String keyword);
 	public List<Post> getLowerCaseKeyword(String keyword,String pageId);
@@ -16,5 +16,6 @@ public interface FBService {
 	void feedOfTimeline();
 	public List<SNresult> requete(String keyword,String pageId);
 	void countLCS(String keyword);
+
 	
 }

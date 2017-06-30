@@ -7,6 +7,7 @@ import org.bson.types.ObjectId;
 
 import com.start.models.Alert;
 import com.start.models.Customer;
+import com.start.models.Instance;
 import com.start.models.User;
 
 public interface CustomerService {
@@ -16,5 +17,7 @@ public interface CustomerService {
 	Customer getCustomer(String name);
 	public void update(Customer cust );
 	public List<Alert> findAlertsByCustomer(String name);
-	Customer getCustomerByUsername(String username); 
+	Customer getCustomerByUsername(String username);
+	boolean issetCustomer(ObjectId InstId);
+	String addInstToCustomer(Instance inst); 
 }

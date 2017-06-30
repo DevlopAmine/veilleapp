@@ -29,11 +29,11 @@ public class NewTwServiceImpl {
 	public List<Tweet> getFiltredData(Alert alert)
 	{
 		
-		String[] forbidKeywords =transform(alert.getForbidenKeywords());
-		String[] optKeywords =transform(alert.getOptKeywords());
+		String[] forbidKeywords =transformKw(alert.getForbidenKeywords());
+		String[] optKeywords =transformKw(alert.getOptKeywords());
 		String Lang ="fr"; 
-		String[] srcAuth =transform(alert.getSrcAutorises());
-		String[] srcForb =transform(alert.getSrcBloques());
+		String[] srcAuth =transform(alert.getSrcAutorisesTw());
+		String[] srcForb =transform(alert.getSrcBloquesTw());
 		
 		String keyword = alert.getDescA();
 		String fk="";String sA="";String sF="";
@@ -72,10 +72,10 @@ public class NewTwServiceImpl {
 				
 		}	
 		System.out.println(sF);
-		//System.out.println(keyword=keyword+" "+keyOption+fk+sF);
-		System.out.println(keyword=keyword+fk+sF);
+		System.out.println(keyword=keyword+" "+keyOption+fk+sF);
+		//System.out.println(keyword=keyword+fk+sF);
 		
-		SearchParameters params = new SearchParameters(keyword).lang(Lang).count(10);
+		SearchParameters params = new SearchParameters(keyword).lang(Lang).count(30);
 		   
 		return  twitter.searchOperations().search(params).getTweets();
 		//return  null;
@@ -83,9 +83,16 @@ public class NewTwServiceImpl {
 			
 	}
 	
+	
 	private String[] transform(String s)
 	{
-		String[] tab = s.trim().split(";");
+		String[] tab = s.trim().split("+");
+		return tab;
+	}
+	
+	private String[] transformKw(String s)
+	{
+		String[] tab = s.trim().split("\\s+");
 		return tab;
 	}
 	

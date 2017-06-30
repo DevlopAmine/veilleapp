@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.bson.types.ObjectId;
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +18,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.start.daoservices.AlertService;
-import com.start.models.Alert;
 import com.start.models.SNresult;
 import com.start.services.FBserviceImpl;
-import com.start.services.NewTwServiceImpl;
+import com.start.services.TstCases;
 import com.start.services.TweetService;
 
 
@@ -138,5 +137,12 @@ public List<SNresult> filterData()
 	return als.filterData(tweetList);
 }
 
+@RequestMapping(path="/json",method = RequestMethod.GET)
+public void tstJson()   
+{
+	TstCases.readjSON();
 }
+}
+
+
 

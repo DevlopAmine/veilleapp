@@ -9,7 +9,6 @@
 	<packaging>jar</packaging>
 
 	<name>mvcproject</name>
-	<description>Ouath with spring</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -104,8 +103,14 @@
 		    <groupId>org.springframework.mobile</groupId>
 		    <artifactId>spring-mobile-device</artifactId>
 		</dependency>
+
+
 		
-    	
+<dependency>
+    <groupId>com.googlecode.json-simple</groupId>
+    <artifactId>json-simple</artifactId>
+    
+</dependency>
 	</dependencies>
 	
 
@@ -119,4 +124,5 @@
 	</build>
 
 
+	<description>Veille App designed with Sprint Boot,Spring Data (MongoDB)</description>
 </project>

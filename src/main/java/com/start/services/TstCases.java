@@ -1,5 +1,12 @@
 package com.start.services;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Reader;
+import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -7,19 +14,26 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.json.JSONException;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Value;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
 import com.restfb.Connection;
 import com.restfb.DefaultFacebookClient;
 import com.restfb.FacebookClient;
 import com.restfb.Parameter;
 import com.restfb.json.JsonObject;
 import com.start.models.SNresult;
+import com.start.models.User;
+
 
 public class TstCases {
 	final static Logger logger = Logger.getLogger(FBserviceImpl.class);
 	private static String[] tab = {"432050416881597","163062750449250","1587232614838771","1215106251863394" };
-	
+	static Gson gson;
 	
 	static FacebookClient fbClient;
 	
@@ -124,6 +138,85 @@ public class TstCases {
 	        return date;
 		}
 	
+	
+	public static void tstJson() throws JsonIOException
+	{
+	
+		 gson = new Gson();
+		User us =new User();
+		us.setId(1);us.setUsername("amine");
+		
+		String json = gson.toJson(us);
+        System.out.println(json);
+
+        //2. Convert object to JSON string and save into a file directly
+        try (FileWriter writer = new FileWriter("user.json")) {
+
+            gson.toJson(us, writer);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+		
+	}
+	
+	public static void readjSON()
+	{
+	 gson = new Gson();
+
+        try (Reader reader = new FileReader("user.json")) {
+
+			// Convert JSON to Java Object
+            User us = gson.fromJson(reader, User.class);
+            System.out.println(us);
+
+			// Convert JSON to JsonElement, and later to String
+            /*JsonElement json = gson.fromJson(reader, JsonElement.class);
+            String jsonInString = gson.toJson(json);
+            System.out.println(jsonInString);*/
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+	}
+	
+	public static void erasejSON()  
+	{
+		 
+		  JSONParser parser = new JSONParser();
+	      
+	    	  Object obj;
+			try {
+				obj = parser.parse(new FileReader(
+						  "user.json"));
+				 JSONObject jsonObject = (JSONObject) obj;
+		            System.out.println(jsonObject);
+		            
+		             FileWriter writer = new FileWriter("user.json");
+                     writer.write("");
+
+			} catch (FileNotFoundException e) {
+				
+				e.printStackTrace();
+			} catch (IOException e) {
+				
+				e.printStackTrace();
+			} catch (org.json.simple.parser.ParseException e) {
+				
+				logger.error("Parse ex "+e);
+			}
+	 
+	           
+	      
+	      
+	    
+		}
+        
+
+	}
+	
 	/*
 	 * public List<SNresult> test()
 	{
@@ -194,4 +287,4 @@ public class TstCases {
 		
 	}
 	 * **/
-}
+

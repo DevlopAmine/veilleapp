@@ -15,22 +15,28 @@ public class User1 {
 	@Id
 	private ObjectId id;
 	
-	private Long idL;
-	public Long getIdL() {
+	private String idL;
+	public String getIdL() {
 		return idL;
+	}
+
+	public void setIdL(String idL) {
+		this.idL = idL;
 	}
 
 	private String name;
 	private String email;
 	private String password;
 	private String username;
-	private String token;
 	
-	@Field(value="authorities")
-	private List<Authority> authorities;
+	public User1 (ObjectId Id, String n, String e, String pass, String usn)
+	{
+		this.id =Id;
+		this.name =n;
+		this.password=pass;
+		this.username = usn;
+	}
 	
-	private Boolean enabled;
-	private Date lastPasswordResetDate;
 	public String getName() {
 		return name;
 	}
@@ -44,40 +50,14 @@ public class User1 {
 		return username;
 	}
 	
-	 public List<Authority> getAuthorities() {
-	        return authorities;
-	    }
-
-	 public void setAuthorities(List<Authority> authorities) {
-	        this.authorities = authorities;
-	    }   
+	
 	 
-	 public Boolean getEnabled() {
-	        return enabled;
-	    }
-
-	    public void setEnabled(Boolean enabled) {
-	        this.enabled = enabled;
-	    }
 	 
-	 public Date getLastPasswordResetDate() {
-	        return lastPasswordResetDate;
-	    }
-
-	    public void setLastPasswordResetDate(Date lastPasswordResetDate) {
-	        this.lastPasswordResetDate = lastPasswordResetDate;
-	    }
-		public String getToken() {
-			return token;
-		}
-		public void setToken(String token) {
-			this.token = token;
-		}
+	
 		@Override
 		public String toString() {
 			return "User1 [idL=" + idL + ", name=" + name + ", email=" + email + ", password=" + password
-					+ ", username=" + username + ", token=" + token + ", authorities=" + authorities + ", enabled="
-					+ enabled + ", lastPasswordResetDate=" + lastPasswordResetDate + "]";
+					+ ", username=" + username +"]";
 		}
 		
 	    

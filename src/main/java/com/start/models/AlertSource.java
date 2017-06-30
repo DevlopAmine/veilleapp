@@ -13,7 +13,7 @@ public class AlertSource {
 	private int likes_count;
 	private int comts_count;
 	private int shares_count;
-	boolean avis;
+	String avis;
 	public 	AlertSource()
 	{}
 	public AlertSource(String id,String txt,String l,String imgL)
@@ -86,10 +86,10 @@ public class AlertSource {
 	
 	
 	
-	public boolean isAvis() {
+	public String getAvis() {
 		return avis;
 	}
-	public void setAvis(boolean avis) {
+	public void setAvis(String avis) {
 		this.avis = avis;
 	}
 	@Override

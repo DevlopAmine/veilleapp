@@ -10,5 +10,6 @@ public interface FBpageService {
 	void savePage(Alert alert);
 	List<FbPage> getPagesByParent(String parent);
 	String getPageId(String pageName);
+	List<FbPage> getPages();
 	
 }

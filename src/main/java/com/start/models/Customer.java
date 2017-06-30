@@ -3,10 +3,16 @@ package com.start.models;
 import java.util.List;
 
 import org.bson.types.ObjectId;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.annotation.SessionScope;
 
+@Component
+@SessionScope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 @Document(collection="customer")
 public class Customer {
 	@Id
@@ -15,6 +21,9 @@ public class Customer {
 	private int idL;
 	public int getIdL() {
 		return idL;
+	}
+	public void setIdL(int idl) {
+		this.idL = idl;
 	}
 	private String description;
 	private String name;

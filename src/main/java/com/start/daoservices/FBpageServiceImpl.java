@@ -17,6 +17,7 @@ import com.restfb.types.Page;
 import com.start.models.Alert;
 import com.start.models.FbPage;
 import com.start.repositories.FBpageRepository;
+import com.start.services.FBService;
 
 
 public class FBpageServiceImpl  implements FBpageService{
@@ -25,26 +26,31 @@ public class FBpageServiceImpl  implements FBpageService{
 	FBpageRepository fbPageRepo;
 	@Autowired 
 	MongoTemplate mongoTemplate;
+	@Autowired
+	private FBService fbService;
+	
 	@Override
 	public void savePage(Alert alert) {
-		//FbPage p = new FbPage();
-		RestTemplate restTemplate = new RestTemplate();
+		
 		List<FbPage> fbList = new ArrayList<FbPage>(); 
-	    ResponseEntity<List<Page>> FbResponse =
-			        restTemplate.exchange("http://localhost:8080/svc/v1/fb/idscollect",
-			                    HttpMethod.GET, null, new ParameterizedTypeReference<List<Page>>() {
-			            });
-		List<Page> fbL = FbResponse.getBody();		
-		//p.setId(new ObjectId(FBpageMap.get("_id").toString()));
+		 
+		List<Page> fbL = fbService.pageIdscollect(alert.getDescA());	
+		int i=0;
+		outerloop:
 		for (Page page : fbL) {
+			
 			System.out.println("Id: "+page.getId()+"Name: "+page.getName());
-			fbList.add(new FbPage(page.getId(),page.getName()));    
+			fbList.add(new FbPage(page.getId(),page.getName()));
+			if(i==10)
+				break outerloop;
+			i++;
 		}
+	  
+	   		
 		System.out.println("nb d Ids"+fbL.size());
 		
-		//p.setPageName(FBpageMap.get("pageName").toString());
-		//p.setPageId(FBpageMap.get("pageId").toString());
 		for (FbPage fpage : fbList) {
+			i++;
 			fpage.setAlertid(alert.getId());
 			fpage.setParentAlert(alert.getDescA());
 			
@@ -66,6 +72,15 @@ public class FBpageServiceImpl  implements FBpageService{
 		
 	}
 
+	@Override
+	public List<FbPage> getPages() {
+		
+		
+		List<FbPage> pages =  (List<FbPage>) fbPageRepo.findAll();
+		
+		return pages;
+		
+	}
 	@Override
 	public String getPageId(String pageName)
 	{
